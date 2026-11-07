@@ -15,18 +15,35 @@
 <style>
 :root{
   --ink:#f4ecdc; --ink-2:rgba(244,236,220,.72); --ink-3:rgba(244,236,220,.46);
-  --sea:#7fe3d4; --sea-deep:#2a8db5; --violet:#a5a2f2;
-  --glass:rgba(255,255,255,.09); --glass-edge:rgba(255,255,255,.18);
-  --sheet:rgba(12,18,44,.78);
+  --sea:#7fe3d4; --sand:#f2c48d; --high:#cfcaff;
+  --glass:rgba(255,255,255,.09); --glass-edge:rgba(255,255,255,.18); --glass-on:rgba(255,255,255,.2);
+  --sheet:rgba(12,18,44,.78); --sheet-solid:#141a3c; --dock:rgba(8,14,40,.28); --dock-edge:rgba(255,255,255,.1);
+  --toast:rgba(12,18,44,.86); --veil:rgba(3,6,20,.45);
+  --line:rgba(255,255,255,.07); --field:rgba(255,255,255,.07); --field-edge:rgba(255,255,255,.12);
+  --accent-bg:rgba(127,227,212,.16); --danger:#ffb3bf; --danger-bg:rgba(255,120,140,.12);
+  --tip-bg:rgba(244,236,220,.96); --tip-ink:#121838; --shadow:rgba(0,10,40,.25);
+  --sky:linear-gradient(180deg,#070b1f 0%,#121838 38%,#272c63 70%,#3c3d7a 100%);
   --st:env(safe-area-inset-top); --sb:env(safe-area-inset-bottom);
   --round:ui-rounded,"SF Pro Rounded",-apple-system,system-ui,sans-serif;
   --serif:ui-serif,"New York",Georgia,serif;
 }
+body.day{
+  --ink:#10284a; --ink-2:rgba(16,40,74,.74); --ink-3:rgba(16,40,74,.52);
+  --sea:#0a7c84; --sand:#c07a2c; --high:#4b3fb8;
+  --glass:rgba(255,255,255,.34); --glass-edge:rgba(255,255,255,.7); --glass-on:rgba(255,255,255,.6);
+  --sheet:rgba(244,249,252,.86); --sheet-solid:#eef4f8; --dock:rgba(255,255,255,.34); --dock-edge:rgba(255,255,255,.6);
+  --toast:rgba(250,252,253,.92); --veil:rgba(16,50,90,.22);
+  --line:rgba(16,40,74,.09); --field:rgba(16,40,74,.05); --field-edge:rgba(16,40,74,.14);
+  --accent-bg:rgba(10,124,132,.12); --danger:#b4344c; --danger-bg:rgba(200,50,80,.09);
+  --tip-bg:rgba(16,40,74,.94); --tip-ink:#f4f8fb; --shadow:rgba(20,60,110,.18);
+  --sky:linear-gradient(180deg,#3f86c9 0%,#79b6e4 34%,#bfe0f2 66%,#fbe4d0 100%);
+}
+html{color-scheme:dark}
+html:has(body.day){color-scheme:light}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
 body{
-  position:fixed;inset:0;color:var(--ink);font-family:var(--round);
-  background:linear-gradient(180deg,#070b1f 0%,#121838 38%,#272c63 70%,#3c3d7a 100%);
+  position:fixed;inset:0;color:var(--ink);font-family:var(--round);background:var(--sky);
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
 }
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
@@ -37,15 +54,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 #gear{position:absolute;left:14px;top:calc(var(--st) + 10px);width:44px;height:44px;border-radius:50%;pointer-events:auto;display:grid;place-items:center;opacity:.75}
 #gear svg{width:22px;height:22px}
 #date{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-2);letter-spacing:.02em;margin-top:8px}
-#total{font-size:64px;font-weight:600;letter-spacing:-.03em;line-height:1;margin-top:14px;font-variant-numeric:tabular-nums;text-shadow:0 2px 30px rgba(0,0,0,.25)}
+#total{font-size:64px;font-weight:600;letter-spacing:-.03em;line-height:1;margin-top:14px;font-variant-numeric:tabular-nums;text-shadow:0 2px 30px var(--shadow)}
 #total small{font-size:20px;font-weight:500;letter-spacing:0;margin-left:4px;color:var(--ink-2)}
 #sub{font-size:14px;color:var(--ink-2);margin-top:8px;min-height:18px;transition:color .6s}
-#sub.high{color:#cfcaff}
+#sub.high{color:var(--high)}
 
 /* ---------- pour badge & hint ---------- */
 #pour{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%) scale(.85);opacity:0;pointer-events:none;text-align:center;transition:opacity .2s,transform .25s cubic-bezier(.3,1.6,.5,1)}
 #pour.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
-#pour b{display:block;font-size:46px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 4px 24px rgba(0,20,60,.5)}
+#pour b{display:block;font-size:46px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 4px 24px var(--shadow)}
 #pour span{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-2)}
 #pour.cancel b{opacity:.4;text-decoration:line-through}
 #hint{position:fixed;left:0;right:0;top:46%;text-align:center;font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-2);pointer-events:none;transition:opacity .8s;animation:breathe 3.2s ease-in-out infinite}
@@ -61,12 +78,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   -webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);
   border-radius:58% 42% 55% 45% / 52% 48% 52% 48%;
   animation:morph 9s ease-in-out infinite;transition:transform .25s cubic-bezier(.3,1.7,.5,1),background .2s;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 24px rgba(0,10,40,.25)
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 24px var(--shadow)
 }
 .pebble:nth-child(2){animation-delay:-2.2s;animation-duration:10s}
 .pebble:nth-child(3){animation-delay:-4.6s;animation-duration:8s}
 .pebble:nth-child(4){animation-delay:-6.1s;animation-duration:11s}
-.pebble:active{transform:scale(.88);background:rgba(255,255,255,.2)}
+.pebble:active{transform:scale(.88);background:var(--glass-on)}
 .pebble b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
 .pebble i{font-family:var(--serif);font-size:12px;color:var(--ink-2);margin-top:1px}
 @keyframes morph{
@@ -74,30 +91,35 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   33%{border-radius:45% 55% 42% 58% / 55% 45% 55% 45%}
   66%{border-radius:52% 48% 60% 40% / 45% 55% 48% 52%}
 }
-#dock{display:flex;justify-content:space-between;align-items:center}
+#dock{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .dockbtn{pointer-events:auto;height:44px;padding:0 16px;border-radius:22px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);
-  background:rgba(8,14,40,.28);border:1px solid rgba(255,255,255,.1);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  background:var(--dock);border:1px solid var(--dock-edge);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:transform .25s cubic-bezier(.3,1.7,.5,1)}
 .dockbtn svg{width:18px;height:18px}
+.dockbtn:active{transform:scale(.92)}
+#thirsty{color:var(--sand);font-family:var(--serif);font-style:italic;font-size:15px;padding:0 18px}
+#thirsty svg{width:17px;height:17px}
 
 /* ---------- toast ---------- */
-#toast{position:fixed;left:50%;bottom:calc(var(--sb) + 150px);transform:translate(-50%,30px);opacity:0;transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .3s;transition:transform .45s cubic-bezier(.3,1.4,.5,1);
-  display:flex;align-items:center;gap:14px;padding:10px 10px 10px 18px;border-radius:24px;font-size:14px;white-space:nowrap;
-  background:rgba(12,18,44,.82);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);z-index:40}
-#toast.on{transform:translate(-50%,0);opacity:1}
-#toast button{padding:6px 14px;border-radius:16px;background:rgba(127,227,212,.18);color:var(--sea);font-weight:600}
+#toast{position:fixed;left:50%;bottom:calc(var(--sb) + 150px);transform:translate(-50%,30px);opacity:0;pointer-events:none;transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .3s;
+  display:flex;align-items:center;gap:6px;padding:8px 8px 8px 18px;border-radius:24px;font-size:14px;white-space:nowrap;
+  background:var(--toast);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);z-index:40;box-shadow:0 10px 30px var(--shadow)}
+#toast.up{bottom:auto;top:calc(var(--st) + 12px);transform:translate(-50%,-30px)}
+#toast.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+#toast span{margin-right:8px}
+#toast button{padding:7px 14px;border-radius:16px;background:var(--accent-bg);color:var(--sea);font-weight:600}
 
 /* ---------- sheets ---------- */
-#veil{position:fixed;inset:0;background:rgba(3,6,20,.45);opacity:0;pointer-events:none;transition:opacity .35s;z-index:20}
-#veil.on{opacity:1;pointer-events:auto}
+#veil,#veil2{position:fixed;inset:0;background:var(--veil);opacity:0;pointer-events:none;transition:opacity .35s;z-index:20}
+#veil2{z-index:45}
+#veil.on,#veil2.on{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;max-height:88%;z-index:30;display:flex;flex-direction:column;
   background:var(--sheet);-webkit-backdrop-filter:blur(28px) saturate(1.5);backdrop-filter:blur(28px) saturate(1.5);
   border-top:1px solid var(--glass-edge);border-radius:30px 30px 0 0;
   transform:translateY(105%);transition:transform .5s cubic-bezier(.2,1,.3,1)}
 .sheet.on{transform:translateY(0)}
 .sheet header{padding:10px 22px 6px;flex:none;touch-action:none}
-.grab{width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);margin:0 auto 14px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--field-edge);margin:0 auto 14px}
 .sheet h2{margin:0;font-family:var(--serif);font-weight:500;font-size:26px;letter-spacing:-.01em}
-.sheet h2 em{color:var(--ink-3);font-size:16px;margin-left:6px}
 .sheet .body{overflow:auto;padding:6px 22px calc(var(--sb) + 26px);-webkit-overflow-scrolling:touch;-webkit-user-select:none}
 .sheet h3{font-family:var(--serif);font-style:italic;font-weight:400;font-size:15px;color:var(--ink-2);margin:26px 0 10px}
 .sheet p.note{font-size:13px;color:var(--ink-3);line-height:1.45;margin:8px 0 0}
@@ -109,51 +131,79 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .daynav div{text-align:center}
 .daynav strong{display:block;font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
 .daynav span{font-size:13px;color:var(--ink-3)}
-.entry{display:flex;align-items:center;gap:14px;padding:13px 2px;border-bottom:1px solid rgba(255,255,255,.07)}
-.entry .t{width:72px;color:var(--ink-3);font-size:14px;font-variant-numeric:tabular-nums}
+.entry{display:flex;align-items:center;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.entry .t{width:72px;color:var(--ink-3);font-size:14px;font-variant-numeric:tabular-nums;flex:none}
 .entry .a{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
 .entry .s{font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:14px;flex:1}
-.entry .d{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);color:var(--ink-3);font-size:18px;line-height:1}
+.entry .d{width:34px;height:34px;border-radius:50%;background:var(--field);color:var(--ink-3);font-size:18px;line-height:1;flex:none}
+.entry.drink{cursor:pointer}
+.entry.drink:active{background:var(--field)}
+.entry .pen{color:var(--ink-3);font-size:12px;font-family:var(--round);font-style:normal;margin-left:6px;opacity:.8}
+.entry.thirst .a{color:var(--sand);font-family:var(--serif);font-style:italic;font-weight:500}
 .drop-bar{height:4px;border-radius:2px;background:var(--sea);opacity:.7}
 .empty{text-align:center;color:var(--ink-3);font-family:var(--serif);font-style:italic;padding:28px 0}
 .addrow{display:flex;gap:8px;margin-top:6px}
-.addrow input{flex:1;min-width:0}
 input[type=number],input[type=time],input[type=text],select{
-  font:inherit;font-size:16px;color:var(--ink);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid var(--field-edge);
   border-radius:14px;padding:10px 12px;-webkit-appearance:none;appearance:none;outline:none;-webkit-user-select:text;user-select:text}
-input:focus,select:focus{border-color:rgba(127,227,212,.5)}
-.btn{padding:10px 16px;border-radius:14px;background:rgba(127,227,212,.16);color:var(--sea);font-weight:600;font-size:15px}
-.btn.quiet{background:rgba(255,255,255,.07);color:var(--ink)}
-.btn.danger{background:rgba(255,120,140,.12);color:#ffb3bf}
+input:focus,select:focus{border-color:var(--sea)}
+.btn{padding:10px 16px;border-radius:14px;background:var(--accent-bg);color:var(--sea);font-weight:600;font-size:15px}
+.btn.quiet{background:var(--field);color:var(--ink)}
+.btn.danger{background:var(--danger-bg);color:var(--danger)}
 
 /* tides */
-.seg{display:inline-flex;background:rgba(255,255,255,.06);border-radius:14px;padding:3px;gap:2px}
+.seg{display:inline-flex;background:var(--field);border-radius:14px;padding:3px;gap:2px}
 .seg button{padding:7px 14px;border-radius:11px;font-size:14px;color:var(--ink-3)}
-.seg button.on{background:rgba(255,255,255,.12);color:var(--ink)}
+.seg button.on{background:var(--glass-on);color:var(--ink)}
 .chartwrap{position:relative;margin-top:16px}
 .chartwrap svg{display:block;width:100%;overflow:visible}
-.tip{position:absolute;pointer-events:none;transform:translate(-50%,-100%);background:rgba(244,236,220,.95);color:#121838;
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--ink-2);margin-top:14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--sea);opacity:.75}
+.legend i.dash{width:16px;height:0;border-radius:0;background:none;border-top:2px dotted var(--ink-2);opacity:1}
+.legend i.dot{border-radius:50%;background:var(--sand);opacity:1;width:8px;height:8px}
+.tip{position:absolute;pointer-events:none;transform:translate(-50%,-100%);background:var(--tip-bg);color:var(--tip-ink);z-index:2;
   padding:7px 11px;border-radius:12px;font-size:13px;white-space:nowrap;opacity:0;transition:opacity .15s;line-height:1.3;text-align:center}
 .tip b{font-size:15px}
 .tip.on{opacity:1}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
-.tile{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 16px}
+.tile{background:var(--field);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
 .tile b{display:block;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .tile span{font-size:12.5px;color:var(--ink-3)}
+.tile.sand b{color:var(--sand)}
 
 /* settings */
-.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .row label{font-size:16px}
 .row small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
 .stepper{display:flex;align-items:center;gap:10px}
 .stepper button{width:36px;height:36px;border-radius:50%;background:var(--glass);font-size:20px}
 .stepper output{min-width:70px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
-input[switch]{accent-color:#5fcfc0;transform:scale(1.15)}
+input[switch]{accent-color:#3fb8a8;transform:scale(1.15)}
 .vessel{display:grid;grid-template-columns:1fr 96px;gap:8px;margin-bottom:8px}
-.vessel input,.addrow input{width:100%;min-width:0}
+.vessel input,.addrow input{width:100%;min-width:0;flex:1}
 .addrow input[type=time]{flex:0 0 120px}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .signoff{text-align:center;font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:13px;margin-top:30px}
+
+/* ---------- edit card ---------- */
+#editor{position:fixed;left:50%;top:50%;width:min(340px,calc(100% - 36px));z-index:50;padding:22px 20px 18px;border-radius:30px;text-align:center;
+  background:var(--sheet);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(28px) saturate(1.5);backdrop-filter:blur(28px) saturate(1.5);
+  box-shadow:0 20px 60px var(--shadow);transform:translate(-50%,-46%) scale(.94);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.2,1.3,.4,1),opacity .2s}
+#editor.on{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+#editor h4{margin:0;font-family:var(--serif);font-style:italic;font-weight:400;font-size:15px;color:var(--ink-2)}
+#edAmt{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:10px 0 4px}
+#edAmt input{width:4ch;min-width:2.5ch;max-width:6.5ch;text-align:center;font-size:44px;font-weight:600;padding:4px 6px;background:transparent;border-color:transparent;font-variant-numeric:tabular-nums}
+#edAmt input{padding:4px 0}
+#edAmt input::-webkit-inner-spin-button,#edAmt input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#edAmt input:focus{border-color:var(--field-edge);background:var(--field)}
+#edAmt span{font-size:18px;color:var(--ink-2)}
+.nudges{display:flex;justify-content:center;gap:8px;margin:8px 0 14px}
+.nudges button{min-width:58px;height:40px;border-radius:20px;background:var(--field);border:1px solid var(--line);font-size:15px;font-variant-numeric:tabular-nums}
+.nudges button:active{background:var(--glass-on)}
+.edtime{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--ink-3);font-size:14px;margin-bottom:16px}
+.edbtns{display:flex;gap:8px}
+.edbtns .btn{flex:1;padding:12px}
 </style>
 </head>
 <body>
@@ -173,12 +223,23 @@ input[switch]{accent-color:#5fcfc0;transform:scale(1.15)}
   <div id="pebbles"></div>
   <div id="dock">
     <button class="dockbtn" id="openLog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".9" fill="currentColor"/><circle cx="4" cy="12" r=".9" fill="currentColor"/><circle cx="4" cy="18" r=".9" fill="currentColor"/></svg>log</button>
+    <button class="dockbtn" id="thirsty" aria-label="I'm thirsty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6 7.2 6 10.7a6 6 0 0 1-12 0c0-3.5 3-6.7 6-10.7z" stroke-dasharray="2.2 2.4"/><path d="M10.5 12.5l1.6 1.6-1 1.8" /></svg>thirsty</button>
     <button class="dockbtn" id="openTides">tides<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 15c2.5-3 4.5-3 7 0s4.5 3 7 0 3-2.5 4-1.5"/><path d="M3 9c2.5-3 4.5-3 7 0s4.5 3 7 0 3-2.5 4-1.5" opacity=".5"/></svg></button>
   </div>
 </div>
 
-<div id="toast"><span></span><button>undo</button></div>
+<div id="toast"><span></span><button id="toastEdit">edit</button><button id="toastUndo">undo</button></div>
 <div id="veil"></div>
+<div id="veil2"></div>
+
+<!-- Edit a drink -->
+<div id="editor" role="dialog" aria-label="Edit drink">
+  <h4 id="edTitle">adjust this pour</h4>
+  <div id="edAmt"><input type="number" inputmode="decimal" id="edVal"><span id="edUnit">ml</span></div>
+  <div class="nudges" id="edNudges"></div>
+  <div class="edtime">at <input type="time" id="edTime"></div>
+  <div class="edbtns"><button class="btn danger" id="edDel">remove</button><button class="btn quiet" id="edCancel">cancel</button><button class="btn" id="edSave">save</button></div>
+</div>
 
 <!-- Log sheet -->
 <section class="sheet" id="logSheet" aria-label="Log">
@@ -196,9 +257,10 @@ input[switch]{accent-color:#5fcfc0;transform:scale(1.15)}
   <header><div class="grab"></div><h2>Tides</h2></header>
   <div class="body">
     <div class="seg" id="range"><button data-n="7" class="on">week</button><button data-n="14">fortnight</button><button data-n="30">month</button></div>
+    <div class="legend"><span><i></i>water</span><span><i class="dot"></i>thirsty</span><span><i class="dash"></i><em id="htLegend" style="font-style:normal"></em></span></div>
     <div class="chartwrap" id="dayChart"></div>
     <div class="tiles" id="tiles"></div>
-    <h3>when you drink</h3>
+    <h3>when you drink · and when you’re thirsty</h3>
     <div class="chartwrap" id="hourChart"></div>
     <p class="note" id="hourNote"></p>
   </div>
@@ -210,6 +272,7 @@ input[switch]{accent-color:#5fcfc0;transform:scale(1.15)}
   <div class="body">
     <div class="row"><div><label>High-tide mark</label><small>A line on the water, so you can see when a day runs high. Not a goal.</small></div>
       <div class="stepper"><button id="htDown">−</button><output id="htVal"></output><button id="htUp">+</button></div></div>
+    <div class="row"><div><label>Sky</label><small id="skyNote">Auto follows your phone’s light / dark setting.</small></div><div class="seg" id="sky"><button data-s="auto">auto</button><button data-s="day">day</button><button data-s="night">night</button></div></div>
     <div class="row"><label>Units</label><div class="seg" id="units"><button data-u="ml">ml</button><button data-u="oz">fl oz</button></div></div>
     <div class="row"><div><label>New day begins</label><small>For late nights.</small></div>
       <select id="dayStart"><option value="0">midnight</option><option value="1">1 am</option><option value="2">2 am</option><option value="3">3 am</option><option value="4">4 am</option><option value="5">5 am</option></select></div>
@@ -234,16 +297,16 @@ input[switch]{accent-color:#5fcfc0;transform:scale(1.15)}
 const STORE = 'tide.v1';
 const OZ = 29.5735;
 const DEFAULTS = {
-  highTide: 2500, unit: 'ml', dayStart: 0, sound: true, tilt: false,
+  highTide: 2500, unit: 'ml', dayStart: 0, sound: true, tilt: false, sky: 'night',
   vessels: [{name:'sip',ml:100},{name:'glass',ml:250},{name:'mug',ml:350},{name:'bottle',ml:500}]
 };
 let state = load();
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem(STORE));
-    if (s && Array.isArray(s.entries)) return {entries:s.entries, settings:{...DEFAULTS, ...s.settings}};
+    if (s && Array.isArray(s.entries)) return {entries:s.entries, thirst:Array.isArray(s.thirst)?s.thirst:[], settings:{...DEFAULTS, ...s.settings}};
   }catch(e){}
-  return {entries:[], settings:{...DEFAULTS, vessels:DEFAULTS.vessels.map(v=>({...v}))}};
+  return {entries:[], thirst:[], settings:{...DEFAULTS, vessels:DEFAULTS.vessels.map(v=>({...v}))}};
 }
 function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
 const S = () => state.settings;
@@ -256,6 +319,11 @@ const dayKey = ts => keyOf(logicalDate(ts));
 function dayDate(offset){ const d = logicalDate(Date.now()); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - offset); }
 const entriesOn = key => state.entries.filter(e => dayKey(e.t) === key);
 const sum = es => es.reduce((a,e)=>a+e.ml,0);
+const thirstOn = key => state.thirst.filter(x => dayKey(x.t) === key);
+function firstDayKey(){
+  const ts = Math.min(state.entries.length ? state.entries[0].t : Infinity, ...state.thirst.map(x=>x.t));
+  return isFinite(ts) ? dayKey(ts) : keyOf(dayDate(0));
+}
 const todayTotal = () => sum(entriesOn(dayKey(Date.now())));
 
 /* ================= formatting ================= */
@@ -327,13 +395,26 @@ function pourSound(on){
   }
 }
 
+/* ================= sky: day / night ================= */
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+let isDay = false;
+function applySky(){
+  const m = S().sky;
+  const day = m === 'day' || (m === 'auto' && !darkMQ.matches);
+  isDay = day;
+  document.body.classList.toggle('day', day);
+  document.querySelector('meta[name=theme-color]').setAttribute('content', day ? '#3f86c9' : '#0a0f26');
+  lastHud = '';
+}
+darkMQ.addEventListener && darkMQ.addEventListener('change', applySky);
+
 /* ================= canvas world ================= */
 const cv = $('#sea'), ctx = cv.getContext('2d');
 let W=0, H=0, DPR=1, safeTop=0, safeBot=0;
 const N = 56;                       // surface springs
 const hs = new Float32Array(N), vs = new Float32Array(N);
 let pts = [];                       // surface points of current frame
-let stars = [], bubbles = [], spray = [], drops = [];
+let stars = [], clouds = [], bubbles = [], spray = [], drops = [], wishes = [];
 let moon = {x:0,y:0,r:20,img:null};
 let levelTotal = 0, levelVel = 0, inflight = 0, pourMl = 0;
 let tilt = 0, targetTilt = 0;
@@ -352,6 +433,7 @@ function resize(){
   cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
   ctx.setTransform(DPR,0,0,DPR,0,0);
   stars = Array.from({length:70}, () => ({x:Math.random()*W, y:Math.random()*H*.62, r:Math.random()*1.1+.3, p:Math.random()*6.28, s:.5+Math.random()*1.5}));
+  clouds = Array.from({length:5}, (_,i) => ({x:Math.random()*W, y:safeTop + 80 + i*55 + Math.random()*40, s:.6+Math.random()*.7, v:(.04+Math.random()*.08)*(Math.random()<.5?-1:1)}));
   moon.r = 19; moon.x = W - 40; moon.y = safeTop + 32;
   moon.img = renderMoon(moon.r);
 }
@@ -470,22 +552,48 @@ function step(){
 /* --- palette: calm sea → ink-violet past high tide --- */
 const CALM = [[132,232,216],[42,141,181],[9,38,88]];
 const DEEP = [[170,166,246],[78,66,176],[20,14,66]];
+const CALM_D = [[150,238,226],[38,170,204],[14,92,160]];
+const DEEP_D = [[184,176,250],[110,92,214],[52,36,138]];
 const mix = (a,b,t) => a.map((v,i)=>Math.round(lerp(v,b[i],t)));
 const rgba = (c,a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
 function draw(now){
   const t = simT;
   ctx.clearRect(0,0,W,H);
-  // stars
-  for (const s of stars){
-    const a = .25 + .55*(.5+.5*Math.sin(t*s.s + s.p));
-    ctx.fillStyle = `rgba(246,236,210,${a})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
+  if (isDay){
+    // sun + soft clouds
+    const sh = ctx.createRadialGradient(moon.x,moon.y,moon.r*.8,moon.x,moon.y,moon.r*7);
+    sh.addColorStop(0,'rgba(255,246,214,.75)'); sh.addColorStop(.35,'rgba(255,240,200,.22)'); sh.addColorStop(1,'rgba(255,240,200,0)');
+    ctx.fillStyle = sh; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r*7,0,7); ctx.fill();
+    ctx.fillStyle = '#fff8e2'; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r*(1+.03*Math.sin(t*1.4)),0,7); ctx.fill();
+    for (const c of clouds){
+      c.x += c.v; if (c.x > W+90) c.x = -90; if (c.x < -90) c.x = W+90;
+      ctx.fillStyle = 'rgba(255,255,255,.5)';
+      for (const [dx,dy,rr] of [[-26,4,14],[-8,-6,19],[14,-2,16],[30,6,11],[2,8,14]]){ ctx.beginPath(); ctx.arc(c.x+dx*c.s, c.y+dy*c.s, rr*c.s, 0, 7); ctx.fill(); }
+    }
+  } else {
+    // stars
+    for (const s of stars){
+      const a = .25 + .55*(.5+.5*Math.sin(t*s.s + s.p));
+      ctx.fillStyle = `rgba(246,236,210,${a})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
+    }
+    // moon + halo
+    const halo = ctx.createRadialGradient(moon.x,moon.y,moon.r*.6,moon.x,moon.y,moon.r*5);
+    halo.addColorStop(0,'rgba(246,236,210,.20)'); halo.addColorStop(1,'rgba(246,236,210,0)');
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r*5,0,7); ctx.fill();
+    const ms = moon.img.width/DPR; ctx.drawImage(moon.img, moon.x-ms/2, moon.y-ms/2, ms, ms);
   }
-  // moon + halo
-  const halo = ctx.createRadialGradient(moon.x,moon.y,moon.r*.6,moon.x,moon.y,moon.r*5);
-  halo.addColorStop(0,'rgba(246,236,210,.20)'); halo.addColorStop(1,'rgba(246,236,210,0)');
-  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r*5,0,7); ctx.fill();
-  const ms = moon.img.width/DPR; ctx.drawImage(moon.img, moon.x-ms/2, moon.y-ms/2, ms, ms);
+  // wishes: shooting stars from the thirsty button
+  for (let k=wishes.length-1;k>=0;k--){
+    const w = wishes[k]; w.x += w.vx; w.y += w.vy; w.life -= .016;
+    if (w.life <= 0){ wishes.splice(k,1); continue; }
+    const tail = 90, a = Math.min(1, w.life*1.6);
+    const lg = ctx.createLinearGradient(w.x, w.y, w.x - w.vx/Math.hypot(w.vx,w.vy)*tail, w.y - w.vy/Math.hypot(w.vx,w.vy)*tail);
+    lg.addColorStop(0, `rgba(255,236,200,${a})`); lg.addColorStop(1, 'rgba(255,236,200,0)');
+    ctx.strokeStyle = lg; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(w.x, w.y); ctx.lineTo(w.x - w.vx/Math.hypot(w.vx,w.vy)*tail, w.y - w.vy/Math.hypot(w.vx,w.vy)*tail); ctx.stroke();
+    ctx.fillStyle = `rgba(255,248,230,${a})`; ctx.beginPath(); ctx.arc(w.x, w.y, 2.4, 0, 7); ctx.fill();
+  }
 
   // surface points
   const ly = yFor(levelTotal), slope = Math.tan(tilt);
@@ -493,7 +601,8 @@ function draw(now){
   for (let i=0;i<N;i++){ const x = i/(N-1)*W; pts.push([x, ly + hs[i] + ambient(x,t) + (x-W/2)*slope]); }
   const ht = S().highTide;
   const deep = clamp((levelTotal - ht)/(ht*.2), 0, 1);
-  const top = mix(CALM[0],DEEP[0],deep), mid = mix(CALM[1],DEEP[1],deep), bot = mix(CALM[2],DEEP[2],deep);
+  const P = isDay ? [CALM_D, DEEP_D] : [CALM, DEEP];
+  const top = mix(P[0][0],P[1][0],deep), mid = mix(P[0][1],P[1][1],deep), bot = mix(P[0][2],P[1][2],deep);
   const minY = Math.min(...pts.map(p=>p[1]));
 
   // back wave
@@ -514,11 +623,11 @@ function draw(now){
   const hy = yFor(ht);
   ctx.save();
   ctx.setLineDash([2,7]); ctx.lineCap = 'round'; ctx.lineWidth = 1.5;
-  ctx.strokeStyle = 'rgba(244,236,220,.45)';
+  ctx.strokeStyle = isDay ? 'rgba(255,255,255,.8)' : 'rgba(244,236,220,.45)';
   ctx.beginPath(); ctx.moveTo(18,hy); ctx.lineTo(W-18,hy); ctx.stroke();
   ctx.setLineDash([]);
   ctx.font = 'italic 13px ui-serif, "New York", Georgia, serif';
-  ctx.fillStyle = 'rgba(244,236,220,.62)'; ctx.textAlign = 'right';
+  ctx.fillStyle = isDay ? 'rgba(16,40,74,.7)' : 'rgba(244,236,220,.62)'; ctx.textAlign = 'right';
   ctx.fillText('high tide · ' + vol(ht), W-20, hy-8);
   ctx.restore();
 
@@ -601,9 +710,11 @@ function hud(){
   if (html !== lastHud){ elTotal.innerHTML = html; lastHud = html; }
   const n = entriesOn(shownKey).length, ht = S().highTide, real = todayCache + pourMl;
   let s;
+  const th = thirstOn(shownKey).length;
   if (real > ht) s = vol(real - ht) + ' past high tide';
-  else if (n === 0) s = 'calm water · ' + phaseName();
+  else if (n === 0) s = th ? 'no water yet' : isDay ? 'calm water · clear skies' : 'calm water · ' + phaseName();
   else s = n + (n===1?' drink':' drinks') + ' · last at ' + timeStr(Math.max(...entriesOn(shownKey).map(e=>e.t)));
+  if (th) s += ' · thirsty ' + th + '×';
   if (elSub.textContent !== s) elSub.textContent = s;
   elSub.classList.toggle('high', real > ht);
 }
@@ -636,7 +747,7 @@ function dropVessel(v){
   const e = addEntry(v.ml, v.name);
   inflight += v.ml;
   drops.push({x: W*.5 + (Math.random()-.5)*W*.35, y: safeTop + 120, vy: 1, ml: v.ml, r: 7 + Math.min(9, v.ml/70)});
-  toast('+' + amt(v.ml) + ' ' + v.name, () => { removeEntry(e.id); });
+  toast('+' + amt(v.ml) + ' ' + v.name, () => { removeEntry(e.id); }, e.id);
 }
 
 /* --- hold to pour --- */
@@ -684,7 +795,7 @@ function endPour(e){
     pourMl = 0;                // hand the pour over to a real entry seamlessly
     const en = addEntry(r, 'poured');
     haptic(); bloop(clamp(levelTotal/capacity(),0,1));
-    toast('+' + amt(r) + ' poured', () => removeEntry(en.id));
+    toast('+' + amt(r) + ' poured', () => removeEntry(en.id), en.id);
   } else { pourMl = 0; refreshToday(); $('#hint').classList.toggle('gone', state.entries.length>0); }
 }
 cv.addEventListener('pointerup', endPour);
@@ -714,15 +825,84 @@ function maybeTilt(){ if (S().tilt && !tiltOn) enableTilt(); }
 
 /* ================= toast ================= */
 const elToast = $('#toast'); let toastTimer = 0, undoFn = null;
-function toast(msg, undo){
+let toastEditId = null;
+function toast(msg, undo, editId){
   elToast.querySelector('span').textContent = msg;
-  undoFn = undo; elToast.querySelector('button').style.display = undo ? '' : 'none';
+  undoFn = undo; toastEditId = editId || null;
+  $('#toastUndo').style.display = undo ? '' : 'none';
+  $('#toastEdit').style.display = editId ? '' : 'none';
+  elToast.classList.toggle('up', !!openId);
   elToast.classList.add('on'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>elToast.classList.remove('on'), 4200);
+  toastTimer = setTimeout(()=>elToast.classList.remove('on'), editId ? 6000 : 4200);
 }
-elToast.querySelector('button').addEventListener('click', () => {
+$('#toastUndo').addEventListener('click', () => {
   if (undoFn){ undoFn(); undoFn = null; haptic(); }
   elToast.classList.remove('on'); if (openId === 'logSheet') renderLog();
+});
+$('#toastEdit').addEventListener('click', () => { if (toastEditId) openEditor(toastEditId); });
+
+/* ================= edit a drink ================= */
+let edId = null;
+function openEditor(id){
+  const e = state.entries.find(x=>x.id===id); if (!e) return;
+  edId = id; haptic();
+  $('#edTitle').textContent = e.src === 'poured' ? 'adjust this pour' : 'adjust this drink';
+  $('#edVal').value = fromMl(e.ml); fitEd(); $('#edUnit').textContent = unitLabel();
+  const d = new Date(e.t); $('#edTime').value = pad(d.getHours())+':'+pad(d.getMinutes());
+  const steps = isOz() ? [-2,-.5,.5,2] : [-50,-10,10,50];
+  $('#edNudges').innerHTML = steps.map(v=>`<button data-v="${v}">${v>0?'+':'−'}${Math.abs(v)}</button>`).join('');
+  elToast.classList.remove('on');
+  $('#editor').classList.add('on'); $('#veil2').classList.add('on');
+}
+function fitEd(){ const v = $('#edVal'); v.style.width = (String(v.value).length + .5) + 'ch'; }
+$('#edVal').addEventListener('input', fitEd);
+function closeEditor(){
+  $('#editor').classList.remove('on'); $('#veil2').classList.remove('on'); edId = null;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+}
+function restoreEntry(e){ state.entries.push(e); state.entries.sort((a,b)=>a.t-b.t); save(); refreshToday(); if (openId === 'logSheet') renderLog(); }
+$('#edNudges').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  const v = parseFloat($('#edVal').value) || 0;
+  $('#edVal').value = Math.max(0, Math.round((v + +b.dataset.v)*10)/10); fitEd(); haptic();
+});
+$('#edCancel').addEventListener('click', closeEditor);
+$('#veil2').addEventListener('click', closeEditor);
+$('#edSave').addEventListener('click', () => {
+  const e = state.entries.find(x=>x.id===edId); if (!e) return closeEditor();
+  const v = parseFloat($('#edVal').value);
+  if (!(v > 0)) { $('#edVal').focus(); return; }
+  const before = {...e};
+  e.ml = Math.round(toMl(v)*10)/10;
+  const [hh,mm] = ($('#edTime').value || '').split(':').map(Number);
+  if (!isNaN(hh)){ const d = new Date(e.t); d.setHours(hh, mm||0, 0, 0); e.t = d.getTime(); }
+  state.entries.sort((a,b)=>a.t-b.t); save(); refreshToday(); closeEditor(); haptic();
+  bloop(clamp(todayCache/capacity(),0,1), .12);
+  if (openId === 'logSheet') renderLog();
+  toast('now ' + amt(e.ml), () => { Object.assign(e, before); state.entries.sort((a,b)=>a.t-b.t); save(); refreshToday(); });
+});
+$('#edDel').addEventListener('click', () => {
+  const e = removeEntry(edId); closeEditor(); haptic();
+  if (openId === 'logSheet') renderLog();
+  if (e) toast('removed ' + amt(e.ml), () => restoreEntry(e));
+});
+
+/* ================= thirsty ================= */
+function chime(){
+  const a = audio(); if (!a) return;
+  const t = a.currentTime;
+  [[1046,0],[1568,.09],[2093,.18]].forEach(([f,d]) => {
+    const o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(.0001, t+d); g.gain.exponentialRampToValueAtTime(.07, t+d+.01); g.gain.exponentialRampToValueAtTime(.0001, t+d+.9);
+    o.connect(g).connect(a.destination); o.start(t+d); o.stop(t+d+.95);
+  });
+}
+$('#thirsty').addEventListener('click', () => {
+  haptic(); chime();
+  const x = {id: 'th' + Date.now().toString(36) + Math.random().toString(36).slice(2,5), t: Date.now()};
+  state.thirst.push(x); save(); refreshToday();
+  wishes.push({x: W*(.08 + Math.random()*.25), y: safeTop + 70 + Math.random()*70, vx: 7 + Math.random()*3, vy: 2.4 + Math.random()*1.6, life: 1});
+  toast('thirsty at ' + timeStr(x.t) + ' — noted', () => { state.thirst = state.thirst.filter(y => y.id !== x.id); save(); refreshToday(); });
 });
 
 /* ================= pebbles ================= */
@@ -740,7 +920,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 /* ================= sheets ================= */
 let openId = null;
 function openSheet(id){
-  closeSheet(true); openId = id; haptic();
+  closeSheet(true); openId = id; haptic(); elToast.classList.remove('on');
   if (id === 'logSheet'){ logOffset = 0; renderLog(); }
   if (id === 'tideSheet') renderTides();
   if (id === 'setSheet') renderSettings();
@@ -768,23 +948,34 @@ document.querySelectorAll('.sheet header').forEach(h => {
 /* --- log --- */
 let logOffset = 0;
 function renderLog(){
-  const d = dayDate(logOffset), k = keyOf(d), es = entriesOn(k).slice().reverse();
+  const d = dayDate(logOffset), k = keyOf(d), es = entriesOn(k), ths = thirstOn(k);
   $('#logTotal').textContent = amt(sum(es));
-  $('#logDay').textContent = logOffset===0 ? 'today' : logOffset===1 ? 'yesterday' : d.toLocaleDateString([], {weekday:'long', day:'numeric', month:'short'});
+  $('#logDay').textContent = (logOffset===0 ? 'today' : logOffset===1 ? 'yesterday' : d.toLocaleDateString([], {weekday:'long', day:'numeric', month:'short'}))
+    + (ths.length ? ' · thirsty ' + ths.length + '×' : '');
   $('#nextDay').disabled = logOffset === 0;
-  const first = state.entries.length ? dayKey(state.entries[0].t) : k;
-  $('#prevDay').disabled = k <= first;
+  $('#prevDay').disabled = k <= firstDayKey();
   const max = Math.max(1, ...es.map(e=>e.ml));
+  const items = es.map(e=>({kind:'drink', ...e})).concat(ths.map(x=>({kind:'thirst', ...x}))).sort((a,b)=>b.t-a.t);
   const box = $('#entries');
-  if (!es.length){ box.innerHTML = `<div class="empty">${logOffset===0 ? 'nothing yet — the sea is calm' : 'no water logged this day'}</div>`; }
-  else box.innerHTML = es.map(e => `
-    <div class="entry"><span class="t">${timeStr(e.t)}</span>
+  if (!items.length){ box.innerHTML = `<div class="empty">${logOffset===0 ? 'nothing yet — the sea is calm' : 'no water logged this day'}</div>`; }
+  else box.innerHTML = items.map(e => e.kind === 'drink' ? `
+    <div class="entry drink" data-id="${e.id}"><span class="t">${timeStr(e.t)}</span>
       <span class="a">${amt(e.ml)}</span>
-      <span class="s">${esc(e.src||'')}<div class="drop-bar" style="width:${Math.round(e.ml/max*100)}%;margin-top:6px"></div></span>
-      <button class="d" data-id="${e.id}" aria-label="Remove">×</button></div>`).join('');
-  box.querySelectorAll('.d').forEach(b => b.addEventListener('click', () => {
+      <span class="s">${esc(e.src||'')}<span class="pen">· edit</span><div class="drop-bar" style="width:${Math.round(e.ml/max*100)}%;margin-top:6px"></div></span>
+      <button class="d" data-id="${e.id}" aria-label="Remove">×</button></div>` : `
+    <div class="entry thirst"><span class="t">${timeStr(e.t)}</span>
+      <span class="a">thirsty</span><span class="s"></span>
+      <button class="d" data-th="${e.id}" aria-label="Remove">×</button></div>`).join('')
+    + (es.length ? '<p class="note" style="text-align:center;margin-top:12px">tap a drink to change its amount or time</p>' : '');
+  box.querySelectorAll('.entry.drink').forEach(row => row.addEventListener('click', ev => { if (!ev.target.closest('.d')) openEditor(row.dataset.id); }));
+  box.querySelectorAll('.d[data-id]').forEach(b => b.addEventListener('click', () => {
     const e = removeEntry(b.dataset.id); haptic(); renderLog();
-    if (e) toast('removed ' + amt(e.ml), () => { state.entries.push(e); state.entries.sort((a,b)=>a.t-b.t); save(); refreshToday(); renderLog(); });
+    if (e) toast('removed ' + amt(e.ml), () => restoreEntry(e));
+  }));
+  box.querySelectorAll('.d[data-th]').forEach(b => b.addEventListener('click', () => {
+    const x = state.thirst.find(y => y.id === b.dataset.th); if (!x) return;
+    state.thirst = state.thirst.filter(y => y !== x); save(); refreshToday(); haptic(); renderLog();
+    toast('removed a thirsty moment', () => { state.thirst.push(x); save(); refreshToday(); renderLog(); });
   }));
   $('#addAmt').placeholder = 'amount (' + unitLabel() + ')';
   const now = new Date(); $('#addTime').value = pad(now.getHours())+':'+pad(now.getMinutes());
@@ -816,68 +1007,85 @@ function barPath(x,y,w,h,r){ // rounded top, square base
 }
 function renderTides(){
   const ht = S().highTide;
-  const firstKey = state.entries.length ? dayKey(state.entries[0].t) : keyOf(dayDate(0));
+  const firstKey = firstDayKey();
   const days = [];
-  for (let i=range-1;i>=0;i--){ const d = dayDate(i), k = keyOf(d); const es = entriesOn(k); days.push({d, k, total:sum(es), n:es.length, today:i===0, counted: k >= firstKey}); }
+  for (let i=range-1;i>=0;i--){
+    const d = dayDate(i), k = keyOf(d), es = entriesOn(k);
+    days.push({d, k, total:sum(es), n:es.length, th:thirstOn(k).length, today:i===0, counted: k >= firstKey});
+  }
 
-  // --- daily bars ---
+  // --- daily bars, with thirsty dots on top ---
   const wrap = $('#dayChart'); wrap.innerHTML = '';
-  const Wc = wrap.clientWidth || (innerWidth-44), Hc = 190, padL = 0, padB = 24, padT = 10;
-  const maxV = Math.max(ht*1.15, ...days.map(d=>d.total))*1.05;
+  const Wc = wrap.clientWidth || (innerWidth-44), Hc = 190, padB = 24, padT = 34;
+  const maxV = Math.max(ht*1.15, ...days.map(d=>d.total))*1.02;
   const svg = el('svg', {viewBox:`0 0 ${Wc} ${Hc}`, height:Hc, role:'img', 'aria-label':'Daily water for the last '+range+' days'}, wrap);
   const y = v => padT + (Hc-padT-padB)*(1 - v/maxV);
-  el('line', {x1:0, x2:Wc, y1:y(0), y2:y(0), stroke:'rgba(244,236,220,.18)', 'stroke-width':1}, svg);
-  const gap = range > 14 ? 3 : 6, bw = (Wc - padL - gap*(range-1))/range;
+  el('line', {x1:0, x2:Wc, y1:y(0), y2:y(0), style:'stroke:var(--ink-3);opacity:.4', 'stroke-width':1}, svg);
+  const gap = range > 14 ? 3 : 6, bw = (Wc - gap*(range-1))/range;
   days.forEach((d,i) => {
-    const x = padL + i*(bw+gap), top = y(d.total);
-    el('path', {d: barPath(x, top, bw, y(0)-top, Math.min(4,bw/2)), fill: d.today ? '#9ff0e2' : 'rgba(127,227,212,.55)'}, svg);
+    const x = i*(bw+gap), top = y(d.total);
+    el('path', {d: barPath(x, top, bw, y(0)-top, Math.min(4,bw/2)), style:`fill:var(--sea);opacity:${d.today?1:.55}`}, svg);
+    const dr = Math.min(3, Math.max(2, bw/4));
+    for (let j=0;j<Math.min(d.th,4);j++) el('circle', {cx:x+bw/2, cy:Math.min(top, y(0))-dr-4-j*(dr*2+2.5), r:dr, style:'fill:var(--sand)'}, svg);
     const show = range===7 || (range===14 && i%2===(range-1)%2) || (range===30 && (range-1-i)%5===0);
     if (show){
-      const t = el('text', {x:x+bw/2, y:Hc-6, 'text-anchor':'middle', 'font-size':11, fill: d.today ? 'rgba(244,236,220,.9)' : 'rgba(244,236,220,.45)'}, svg);
+      const t = el('text', {x:x+bw/2, y:Hc-6, 'text-anchor':'middle', 'font-size':11, style:`fill:var(--ink-${d.today?2:3})`}, svg);
       t.textContent = range===7 ? d.d.toLocaleDateString([], {weekday:'narrow'}) : d.d.getDate();
     }
     const hit = el('rect', {x:x-gap/2, y:0, width:bw+gap, height:Hc, fill:'transparent'}, svg);
-    hit.addEventListener('pointerdown', ev => { ev.stopPropagation(); showTip(wrap, x+bw/2, Math.min(top, y(ht))-8,
-      `${d.d.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'})}<br><b>${amt(d.total)}</b> · ${d.n} drink${d.n===1?'':'s'}`); });
+    hit.addEventListener('pointerdown', ev => { ev.stopPropagation(); showTip(wrap, x+bw/2, Math.min(top, y(ht))-10 - Math.min(d.th,4)*8,
+      `${d.d.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'})}<br><b>${amt(d.total)}</b> · ${d.n} drink${d.n===1?'':'s'}${d.th?` · thirsty ${d.th}×`:''}`); });
   });
   const hy = y(ht);
-  el('line', {x1:0, x2:Wc, y1:hy, y2:hy, stroke:'rgba(244,236,220,.55)', 'stroke-width':1.5, 'stroke-dasharray':'2 6', 'stroke-linecap':'round'}, svg);
-  const lt = el('text', {x:Wc, y:hy-6, 'text-anchor':'end', 'font-size':12, 'font-style':'italic', 'font-family':'ui-serif, Georgia, serif', fill:'rgba(244,236,220,.8)', stroke:'rgba(14,20,48,.9)', 'stroke-width':4, 'paint-order':'stroke'}, svg);
-  lt.textContent = 'high tide · ' + vol(ht);
+  el('line', {x1:0, x2:Wc, y1:hy, y2:hy, style:'stroke:var(--ink-2)', 'stroke-width':1.5, 'stroke-dasharray':'2 6', 'stroke-linecap':'round'}, svg);
+  $('#htLegend').textContent = 'high tide · ' + vol(ht);
 
   // --- stats ---
   const counted = days.filter(d=>d.counted);
-  const avg = counted.length ? sum(counted.map(d=>({ml:d.total})))/counted.length : 0;
+  const nd = counted.length;
+  const avg = nd ? counted.reduce((a,d)=>a+d.total,0)/nd : 0;
   const best = days.reduce((a,d)=>d.total>a.total?d:a, days[0]);
   const over = counted.filter(d=>d.total>ht).length;
   const sizes = counted.flatMap(d=>entriesOn(d.k).map(e=>e.ml)).sort((a,b)=>a-b);
   const median = sizes.length ? sizes[Math.floor(sizes.length/2)] : 0;
-  const perDay = counted.length ? sizes.length/counted.length : 0;
+  const perDay = nd ? sizes.length/nd : 0;
+  const thirsts = counted.reduce((a,d)=>a+d.th,0);
+  const r1 = v => Math.round(v*10)/10;
   $('#tiles').innerHTML = `
     <div class="tile"><b>${vol(avg)}</b><span>average a day</span></div>
     <div class="tile"><b>${best.total ? vol(best.total) : '—'}</b><span>${best.total ? 'highest · '+best.d.toLocaleDateString([], {weekday:'short', day:'numeric'}) : 'highest day'}</span></div>
-    <div class="tile"><b>${over}<span style="font-size:15px;color:var(--ink-3)"> / ${counted.length||0}</span></b><span>days past high tide</span></div>
-    <div class="tile"><b>${median ? amt(median) : '—'}</b><span>typical drink · ${perDay ? (Math.round(perDay*10)/10) : 0} a day</span></div>`;
+    <div class="tile"><b>${over}<span style="font-size:15px"> / ${nd}</span></b><span>days past high tide</span></div>
+    <div class="tile"><b>${median ? amt(median) : '—'}</b><span>typical drink · ${r1(perDay)} a day</span></div>
+    <div class="tile sand"><b>${thirsts}</b><span>thirsty moments · ${nd ? r1(thirsts/nd) : 0} a day</span></div>
+    <div class="tile"><b>${thirsts ? r1(sizes.length/thirsts) : '—'}</b><span>drinks for each time you felt thirsty</span></div>`;
 
   // --- hour rhythm ---
   const hw = $('#hourChart'); hw.innerHTML = '';
-  const hours = new Array(24).fill(0);
-  counted.forEach(d => entriesOn(d.k).forEach(e => { hours[new Date(e.t).getHours()] += e.ml; }));
-  const hAvg = hours.map(v => counted.length ? v/counted.length : 0);
-  const Hh = 90, hb = 16, hmax = Math.max(1, ...hAvg);
-  const hsvg = el('svg', {viewBox:`0 0 ${Wc} ${Hh}`, height:Hh, role:'img', 'aria-label':'Average water by hour of day'}, hw);
+  const hours = new Array(24).fill(0), hth = new Array(24).fill(0);
+  counted.forEach(d => {
+    entriesOn(d.k).forEach(e => { hours[new Date(e.t).getHours()] += e.ml; });
+    thirstOn(d.k).forEach(x => { hth[new Date(x.t).getHours()]++; });
+  });
+  const hAvg = hours.map(v => nd ? v/nd : 0);
+  const Hh = 112, hb = 16, room = 26, hmax = Math.max(1, ...hAvg);
+  const hsvg = el('svg', {viewBox:`0 0 ${Wc} ${Hh}`, height:Hh, role:'img', 'aria-label':'Average water and thirsty moments by hour of day'}, hw);
   const hg = 2, hbw = (Wc - hg*23)/24;
   hAvg.forEach((v,i) => {
-    const x = i*(hbw+hg), h = (Hh-hb-4)*v/hmax, top = Hh-hb-h;
-    el('rect', {x, y:Hh-hb-1, width:hbw, height:1, fill:'rgba(244,236,220,.12)'}, hsvg);
-    if (h > 0) el('path', {d: barPath(x, top, hbw, h, Math.min(3,hbw/2)), fill:'rgba(127,227,212,.55)'}, hsvg);
-    if (i%6===0){ const t = el('text', {x:x, y:Hh-2, 'font-size':10.5, fill:'rgba(244,236,220,.45)'}, hsvg); t.textContent = i===0?'12a':i===12?'12p':(i%12)+(i<12?'a':'p'); }
+    const x = i*(hbw+hg), h = (Hh-hb-4-room)*v/hmax, top = Hh-hb-h;
+    el('rect', {x, y:Hh-hb-1, width:hbw, height:1, style:'fill:var(--ink-3);opacity:.35'}, hsvg);
+    if (h > 0) el('path', {d: barPath(x, top, hbw, h, Math.min(3,hbw/2)), style:'fill:var(--sea);opacity:.6'}, hsvg);
+    const dr = Math.min(2.6, hbw/2.4);
+    for (let j=0;j<Math.min(hth[i],3);j++) el('circle', {cx:x+hbw/2, cy:top-dr-3-j*(dr*2+2), r:dr, style:'fill:var(--sand)'}, hsvg);
+    if (i%6===0){ const t = el('text', {x:x, y:Hh-2, 'font-size':10.5, style:'fill:var(--ink-3)'}, hsvg); t.textContent = i===0?'12a':i===12?'12p':(i%12)+(i<12?'a':'p'); }
     const hit = el('rect', {x:x-hg/2, y:0, width:hbw+hg, height:Hh, fill:'transparent'}, hsvg);
     hit.addEventListener('pointerdown', ev => { ev.stopPropagation(); const hr = i%12===0?12:i%12;
-      showTip(hw, x+hbw/2, top-6, `${hr}${i<12?'am':'pm'}–${(i+1)%12===0?12:(i+1)%12}${(i+1)%24<12?'am':'pm'}<br><b>${amt(v)}</b> on average`); });
+      showTip(hw, x+hbw/2, top-8-Math.min(hth[i],3)*7, `${hr}${i<12?'am':'pm'}–${(i+1)%12===0?12:(i+1)%12}${(i+1)%24<12?'am':'pm'}<br><b>${amt(v)}</b> on average${hth[i]?`<br>thirsty ${hth[i]}× in total`:''}`); });
   });
   const peak = hAvg.indexOf(Math.max(...hAvg));
-  $('#hourNote').textContent = sizes.length ? `Your busiest hour is around ${peak%12===0?12:peak%12}${peak<12?'am':'pm'}. Tap any bar for detail.` : 'Once you log a few drinks, your daily rhythm shows up here.';
+  const tpeak = hth.indexOf(Math.max(...hth));
+  const hh = i => (i%12===0?12:i%12)+(i<12?'am':'pm');
+  $('#hourNote').textContent = !sizes.length ? 'Once you log a few drinks, your daily rhythm shows up here.'
+    : `You drink most around ${hh(peak)}` + (thirsts ? `, and feel thirstiest around ${hh(tpeak)}.` : '.') + ' Tap any bar for detail.';
 }
 function showTip(wrap, x, y, html){
   let tip = wrap.querySelector('.tip'); if (!tip){ tip = document.createElement('div'); tip.className = 'tip'; wrap.append(tip); }
@@ -891,6 +1099,7 @@ function renderSettings(){
   $('#htVal').textContent = vol(S().highTide);
   document.querySelectorAll('#units button').forEach(b=>b.classList.toggle('on', b.dataset.u===S().unit));
   $('#dayStart').value = S().dayStart;
+  document.querySelectorAll('#sky button').forEach(b=>b.classList.toggle('on', b.dataset.s===S().sky));
   $('#sound').checked = S().sound; $('#tilt').checked = S().tilt;
   const vb = $('#vessels'); vb.innerHTML = '';
   S().vessels.forEach((v,i) => {
@@ -907,6 +1116,7 @@ function setHT(d){ S().highTide = clamp(S().highTide + d, 500, 8000); save(); re
 $('#htDown').addEventListener('click', ()=>setHT(isOz() ? -8*OZ : -250));
 $('#htUp').addEventListener('click', ()=>setHT(isOz() ? 8*OZ : 250));
 $('#units').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S().unit = b.dataset.u; save(); renderSettings(); renderPebbles(); lastHud=''; });
+$('#sky').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S().sky = b.dataset.s; save(); applySky(); renderSettings(); haptic(); });
 $('#dayStart').addEventListener('change', e => { S().dayStart = +e.target.value; save(); shownKey=''; refreshToday(); });
 $('#sound').addEventListener('change', e => { S().sound = e.target.checked; save(); if (S().sound) bloop(.5); });
 $('#tilt').addEventListener('change', async e => {
@@ -933,6 +1143,7 @@ $('#importFile').addEventListener('change', async e => {
     const ids = new Set(state.entries.map(x=>x.id));
     const incoming = s.entries.filter(x => x && x.id && !ids.has(x.id) && x.ml > 0 && x.t > 0);
     state.entries = state.entries.concat(incoming).sort((a,b)=>a.t-b.t);
+    if (Array.isArray(s.thirst)){ const tids = new Set(state.thirst.map(x=>x.id)); state.thirst = state.thirst.concat(s.thirst.filter(x => x && x.id && x.t > 0 && !tids.has(x.id))); }
     if (s.settings) state.settings = {...DEFAULTS, ...s.settings};
     save(); refreshToday(); renderPebbles(); renderSettings();
     toast('restored ' + incoming.length + ' drinks');
@@ -941,7 +1152,7 @@ $('#importFile').addEventListener('change', async e => {
 });
 $('#wipeBtn').addEventListener('click', () => {
   if (!confirm('Drain everything? This erases every drink on this phone.')) return;
-  state.entries = []; save(); refreshToday(); closeSheet(); toast('the sea is empty');
+  state.entries = []; state.thirst = []; save(); refreshToday(); closeSheet(); toast('the sea is empty');
 });
 
 /* ================= day rollover & boot ================= */
@@ -951,7 +1162,7 @@ setInterval(tick, 30000);
 addEventListener('resize', resize);
 document.addEventListener('gesturestart', e => e.preventDefault());
 
-resize(); refreshToday(); renderPebbles();
+applySky(); resize(); refreshToday(); renderPebbles();
 levelTotal = 0; // open on an empty sea and let the day's water rise in
 requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
 
