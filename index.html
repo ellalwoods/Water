@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tide">
+<meta name="theme-color" content="#0a0f26">
+<title>Tide</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --ink:#f4ecdc; --ink-2:rgba(244,236,220,.72); --ink-3:rgba(244,236,220,.46);
+  --sea:#7fe3d4; --sea-deep:#2a8db5; --violet:#a5a2f2;
+  --glass:rgba(255,255,255,.09); --glass-edge:rgba(255,255,255,.18);
+  --sheet:rgba(12,18,44,.78);
+  --st:env(safe-area-inset-top); --sb:env(safe-area-inset-bottom);
+  --round:ui-rounded,"SF Pro Rounded",-apple-system,system-ui,sans-serif;
+  --serif:ui-serif,"New York",Georgia,serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  position:fixed;inset:0;color:var(--ink);font-family:var(--round);
+  background:linear-gradient(180deg,#070b1f 0%,#121838 38%,#272c63 70%,#3c3d7a 100%);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+#sea{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
+
+/* ---------- top ---------- */
+#top{position:fixed;left:0;right:0;top:0;padding:calc(var(--st) + 14px) 18px 0;pointer-events:none;text-align:center}
+#gear{position:absolute;left:14px;top:calc(var(--st) + 10px);width:44px;height:44px;border-radius:50%;pointer-events:auto;display:grid;place-items:center;opacity:.75}
+#gear svg{width:22px;height:22px}
+#date{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-2);letter-spacing:.02em;margin-top:8px}
+#total{font-size:64px;font-weight:600;letter-spacing:-.03em;line-height:1;margin-top:14px;font-variant-numeric:tabular-nums;text-shadow:0 2px 30px rgba(0,0,0,.25)}
+#total small{font-size:20px;font-weight:500;letter-spacing:0;margin-left:4px;color:var(--ink-2)}
+#sub{font-size:14px;color:var(--ink-2);margin-top:8px;min-height:18px;transition:color .6s}
+#sub.high{color:#cfcaff}
+
+/* ---------- pour badge & hint ---------- */
+#pour{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%) scale(.85);opacity:0;pointer-events:none;text-align:center;transition:opacity .2s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+#pour.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#pour b{display:block;font-size:46px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 4px 24px rgba(0,20,60,.5)}
+#pour span{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-2)}
+#pour.cancel b{opacity:.4;text-decoration:line-through}
+#hint{position:fixed;left:0;right:0;top:46%;text-align:center;font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-2);pointer-events:none;transition:opacity .8s;animation:breathe 3.2s ease-in-out infinite}
+#hint.gone{opacity:0;animation:none}
+@keyframes breathe{50%{opacity:.45;transform:translateY(-3px)}}
+
+/* ---------- bottom: pebbles + dock ---------- */
+#bottom{position:fixed;left:0;right:0;bottom:0;padding:0 14px calc(var(--sb) + 12px);pointer-events:none}
+#pebbles{display:flex;justify-content:center;gap:10px;margin-bottom:14px;flex-wrap:nowrap}
+.pebble{
+  pointer-events:auto;min-width:68px;height:66px;padding:0 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--glass);border:1px solid var(--glass-edge);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);
+  border-radius:58% 42% 55% 45% / 52% 48% 52% 48%;
+  animation:morph 9s ease-in-out infinite;transition:transform .25s cubic-bezier(.3,1.7,.5,1),background .2s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 24px rgba(0,10,40,.25)
+}
+.pebble:nth-child(2){animation-delay:-2.2s;animation-duration:10s}
+.pebble:nth-child(3){animation-delay:-4.6s;animation-duration:8s}
+.pebble:nth-child(4){animation-delay:-6.1s;animation-duration:11s}
+.pebble:active{transform:scale(.88);background:rgba(255,255,255,.2)}
+.pebble b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.pebble i{font-family:var(--serif);font-size:12px;color:var(--ink-2);margin-top:1px}
+@keyframes morph{
+  0%,100%{border-radius:58% 42% 55% 45% / 52% 48% 52% 48%}
+  33%{border-radius:45% 55% 42% 58% / 55% 45% 55% 45%}
+  66%{border-radius:52% 48% 60% 40% / 45% 55% 48% 52%}
+}
+#dock{display:flex;justify-content:space-between;align-items:center}
+.dockbtn{pointer-events:auto;height:44px;padding:0 16px;border-radius:22px;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);
+  background:rgba(8,14,40,.28);border:1px solid rgba(255,255,255,.1);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.dockbtn svg{width:18px;height:18px}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:calc(var(--sb) + 150px);transform:translate(-50%,30px);opacity:0;transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .3s;transition:transform .45s cubic-bezier(.3,1.4,.5,1);
+  display:flex;align-items:center;gap:14px;padding:10px 10px 10px 18px;border-radius:24px;font-size:14px;white-space:nowrap;
+  background:rgba(12,18,44,.82);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);z-index:40}
+#toast.on{transform:translate(-50%,0);opacity:1}
+#toast button{padding:6px 14px;border-radius:16px;background:rgba(127,227,212,.18);color:var(--sea);font-weight:600}
+
+/* ---------- sheets ---------- */
+#veil{position:fixed;inset:0;background:rgba(3,6,20,.45);opacity:0;pointer-events:none;transition:opacity .35s;z-index:20}
+#veil.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:88%;z-index:30;display:flex;flex-direction:column;
+  background:var(--sheet);-webkit-backdrop-filter:blur(28px) saturate(1.5);backdrop-filter:blur(28px) saturate(1.5);
+  border-top:1px solid var(--glass-edge);border-radius:30px 30px 0 0;
+  transform:translateY(105%);transition:transform .5s cubic-bezier(.2,1,.3,1)}
+.sheet.on{transform:translateY(0)}
+.sheet header{padding:10px 22px 6px;flex:none;touch-action:none}
+.grab{width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);margin:0 auto 14px}
+.sheet h2{margin:0;font-family:var(--serif);font-weight:500;font-size:26px;letter-spacing:-.01em}
+.sheet h2 em{color:var(--ink-3);font-size:16px;margin-left:6px}
+.sheet .body{overflow:auto;padding:6px 22px calc(var(--sb) + 26px);-webkit-overflow-scrolling:touch;-webkit-user-select:none}
+.sheet h3{font-family:var(--serif);font-style:italic;font-weight:400;font-size:15px;color:var(--ink-2);margin:26px 0 10px}
+.sheet p.note{font-size:13px;color:var(--ink-3);line-height:1.45;margin:8px 0 0}
+
+/* log */
+.daynav{display:flex;align-items:center;justify-content:space-between;margin:8px 0 6px}
+.daynav button{width:40px;height:40px;border-radius:50%;background:var(--glass);font-size:18px}
+.daynav button:disabled{opacity:.25}
+.daynav div{text-align:center}
+.daynav strong{display:block;font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
+.daynav span{font-size:13px;color:var(--ink-3)}
+.entry{display:flex;align-items:center;gap:14px;padding:13px 2px;border-bottom:1px solid rgba(255,255,255,.07)}
+.entry .t{width:72px;color:var(--ink-3);font-size:14px;font-variant-numeric:tabular-nums}
+.entry .a{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.entry .s{font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:14px;flex:1}
+.entry .d{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);color:var(--ink-3);font-size:18px;line-height:1}
+.drop-bar{height:4px;border-radius:2px;background:var(--sea);opacity:.7}
+.empty{text-align:center;color:var(--ink-3);font-family:var(--serif);font-style:italic;padding:28px 0}
+.addrow{display:flex;gap:8px;margin-top:6px}
+.addrow input{flex:1;min-width:0}
+input[type=number],input[type=time],input[type=text],select{
+  font:inherit;font-size:16px;color:var(--ink);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:10px 12px;-webkit-appearance:none;appearance:none;outline:none;-webkit-user-select:text;user-select:text}
+input:focus,select:focus{border-color:rgba(127,227,212,.5)}
+.btn{padding:10px 16px;border-radius:14px;background:rgba(127,227,212,.16);color:var(--sea);font-weight:600;font-size:15px}
+.btn.quiet{background:rgba(255,255,255,.07);color:var(--ink)}
+.btn.danger{background:rgba(255,120,140,.12);color:#ffb3bf}
+
+/* tides */
+.seg{display:inline-flex;background:rgba(255,255,255,.06);border-radius:14px;padding:3px;gap:2px}
+.seg button{padding:7px 14px;border-radius:11px;font-size:14px;color:var(--ink-3)}
+.seg button.on{background:rgba(255,255,255,.12);color:var(--ink)}
+.chartwrap{position:relative;margin-top:16px}
+.chartwrap svg{display:block;width:100%;overflow:visible}
+.tip{position:absolute;pointer-events:none;transform:translate(-50%,-100%);background:rgba(244,236,220,.95);color:#121838;
+  padding:7px 11px;border-radius:12px;font-size:13px;white-space:nowrap;opacity:0;transition:opacity .15s;line-height:1.3;text-align:center}
+.tip b{font-size:15px}
+.tip.on{opacity:1}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.tile{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px 16px}
+.tile b{display:block;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tile span{font-size:12.5px;color:var(--ink-3)}
+
+/* settings */
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.row label{font-size:16px}
+.row small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:36px;height:36px;border-radius:50%;background:var(--glass);font-size:20px}
+.stepper output{min-width:70px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+input[switch]{accent-color:#5fcfc0;transform:scale(1.15)}
+.vessel{display:grid;grid-template-columns:1fr 96px;gap:8px;margin-bottom:8px}
+.vessel input,.addrow input{width:100%;min-width:0}
+.addrow input[type=time]{flex:0 0 120px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.signoff{text-align:center;font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:13px;margin-top:30px}
+</style>
+</head>
+<body>
+<canvas id="sea" aria-label="Your water for today. Press and hold to pour."></canvas>
+
+<div id="top">
+  <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+  <div id="date"></div>
+  <div id="total">0<small>ml</small></div>
+  <div id="sub"></div>
+</div>
+
+<div id="pour"><b>0 ml</b><span>pouring</span></div>
+<div id="hint">hold anywhere to pour</div>
+
+<div id="bottom">
+  <div id="pebbles"></div>
+  <div id="dock">
+    <button class="dockbtn" id="openLog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".9" fill="currentColor"/><circle cx="4" cy="12" r=".9" fill="currentColor"/><circle cx="4" cy="18" r=".9" fill="currentColor"/></svg>log</button>
+    <button class="dockbtn" id="openTides">tides<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 15c2.5-3 4.5-3 7 0s4.5 3 7 0 3-2.5 4-1.5"/><path d="M3 9c2.5-3 4.5-3 7 0s4.5 3 7 0 3-2.5 4-1.5" opacity=".5"/></svg></button>
+  </div>
+</div>
+
+<div id="toast"><span></span><button>undo</button></div>
+<div id="veil"></div>
+
+<!-- Log sheet -->
+<section class="sheet" id="logSheet" aria-label="Log">
+  <header><div class="grab"></div><h2>The log</h2></header>
+  <div class="body">
+    <div class="daynav"><button id="prevDay" aria-label="Previous day">‹</button><div><strong id="logTotal"></strong><span id="logDay"></span></div><button id="nextDay" aria-label="Next day">›</button></div>
+    <div id="entries"></div>
+    <h3>forgot one?</h3>
+    <div class="addrow"><input type="number" id="addAmt" inputmode="decimal" placeholder="amount"><input type="time" id="addTime"><button class="btn" id="addBtn">add</button></div>
+  </div>
+</section>
+
+<!-- Tides sheet -->
+<section class="sheet" id="tideSheet" aria-label="Tides">
+  <header><div class="grab"></div><h2>Tides</h2></header>
+  <div class="body">
+    <div class="seg" id="range"><button data-n="7" class="on">week</button><button data-n="14">fortnight</button><button data-n="30">month</button></div>
+    <div class="chartwrap" id="dayChart"></div>
+    <div class="tiles" id="tiles"></div>
+    <h3>when you drink</h3>
+    <div class="chartwrap" id="hourChart"></div>
+    <p class="note" id="hourNote"></p>
+  </div>
+</section>
+
+<!-- Settings sheet -->
+<section class="sheet" id="setSheet" aria-label="Settings">
+  <header><div class="grab"></div><h2>Settings</h2></header>
+  <div class="body">
+    <div class="row"><div><label>High-tide mark</label><small>A line on the water, so you can see when a day runs high. Not a goal.</small></div>
+      <div class="stepper"><button id="htDown">−</button><output id="htVal"></output><button id="htUp">+</button></div></div>
+    <div class="row"><label>Units</label><div class="seg" id="units"><button data-u="ml">ml</button><button data-u="oz">fl oz</button></div></div>
+    <div class="row"><div><label>New day begins</label><small>For late nights.</small></div>
+      <select id="dayStart"><option value="0">midnight</option><option value="1">1 am</option><option value="2">2 am</option><option value="3">3 am</option><option value="4">4 am</option><option value="5">5 am</option></select></div>
+    <div class="row"><label>Water sounds</label><input type="checkbox" switch id="sound"></div>
+    <div class="row"><div><label>Tilt the sea</label><small>The water stays level as you tip your phone.</small></div><input type="checkbox" switch id="tilt"></div>
+
+    <h3>your vessels</h3>
+    <div id="vessels"></div>
+
+    <h3>keep it safe</h3>
+    <p class="note" style="margin:0 0 10px">Everything lives only on this phone. Save a backup now and then (to Files or Notes) in case you ever delete the app.</p>
+    <div class="btnrow"><button class="btn" id="exportBtn">save a backup</button><button class="btn quiet" id="importBtn">restore</button><button class="btn danger" id="wipeBtn">drain everything</button></div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <p class="signoff">made for one · stays on this phone</p>
+  </div>
+</section>
+
+<script>
+(() => {
+'use strict';
+/* ================= data ================= */
+const STORE = 'tide.v1';
+const OZ = 29.5735;
+const DEFAULTS = {
+  highTide: 2500, unit: 'ml', dayStart: 0, sound: true, tilt: false,
+  vessels: [{name:'sip',ml:100},{name:'glass',ml:250},{name:'mug',ml:350},{name:'bottle',ml:500}]
+};
+let state = load();
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE));
+    if (s && Array.isArray(s.entries)) return {entries:s.entries, settings:{...DEFAULTS, ...s.settings}};
+  }catch(e){}
+  return {entries:[], settings:{...DEFAULTS, vessels:DEFAULTS.vessels.map(v=>({...v}))}};
+}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+const S = () => state.settings;
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+
+const pad = n => String(n).padStart(2,'0');
+const keyOf = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const logicalDate = ts => new Date(ts - S().dayStart*3600e3);
+const dayKey = ts => keyOf(logicalDate(ts));
+function dayDate(offset){ const d = logicalDate(Date.now()); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - offset); }
+const entriesOn = key => state.entries.filter(e => dayKey(e.t) === key);
+const sum = es => es.reduce((a,e)=>a+e.ml,0);
+const todayTotal = () => sum(entriesOn(dayKey(Date.now())));
+
+/* ================= formatting ================= */
+const isOz = () => S().unit === 'oz';
+const unitLabel = () => isOz() ? 'oz' : 'ml';
+function num(ml){
+  if (isOz()){ const o = ml/OZ; return o < 10 ? (Math.round(o*10)/10).toString() : Math.round(o).toLocaleString(); }
+  return Math.round(ml).toLocaleString();
+}
+const amt = ml => num(ml)+' '+unitLabel();
+function vol(ml){ // compact: 2.5 L / 84 oz
+  if (isOz()) return Math.round(ml/OZ)+' oz';
+  return ml >= 1000 ? (+(ml/1000).toFixed(2))+' L' : Math.round(ml)+' ml';
+}
+const toMl = v => isOz() ? v*OZ : v;
+const fromMl = ml => isOz() ? Math.round(ml/OZ*10)/10 : Math.round(ml);
+function roundPour(ml){ return isOz() ? Math.max(.5, Math.round(ml/OZ*2)/2)*OZ : Math.max(10, Math.round(ml/10)*10); }
+const timeStr = ts => new Date(ts).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}).toLowerCase().replace(' ',' ');
+const dateLong = d => d.toLocaleDateString([], {weekday:'long', day:'numeric', month:'long'});
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const lerp = (a,b,t) => a+(b-a)*t;
+const $ = s => document.querySelector(s);
+
+/* ================= haptics & sound ================= */
+const haptic = (() => {
+  const l = document.createElement('label');
+  l.setAttribute('aria-hidden','true');
+  l.style.cssText = 'position:fixed;left:-100px;top:0;width:1px;height:1px;overflow:hidden;opacity:0';
+  const i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('switch','');
+  l.append(i); document.body.append(l);
+  return () => { if (navigator.vibrate) navigator.vibrate(8); else l.click(); };
+})();
+
+let ac = null, pourNode = null;
+function audio(){
+  if (!S().sound) return null;
+  if (!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+// A bottle rings higher as it fills — so does the sea.
+function bloop(fill=0, vol=.22){
+  const a = audio(); if (!a) return;
+  const t = a.currentTime, o = a.createOscillator(), g = a.createGain();
+  const f = 300 + fill*520 + Math.random()*60;
+  o.type = 'sine';
+  o.frequency.setValueAtTime(f*.55, t);
+  o.frequency.exponentialRampToValueAtTime(f*1.7, t+.08);
+  o.frequency.exponentialRampToValueAtTime(f*1.25, t+.22);
+  g.gain.setValueAtTime(.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t+.012);
+  g.gain.exponentialRampToValueAtTime(.0001, t+.28);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t+.3);
+}
+function pourSound(on){
+  const a = audio();
+  if (on){
+    if (!a || pourNode) return;
+    const len = a.sampleRate*2, buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+    let last = 0; for (let i=0;i<len;i++){ const w = Math.random()*2-1; last = (last + .04*w)/1.04; d[i] = last*3.2; }
+    const src = a.createBufferSource(); src.buffer = buf; src.loop = true;
+    const bp = a.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 2.2; bp.frequency.value = 500;
+    const g = a.createGain(); g.gain.value = .0001; g.gain.exponentialRampToValueAtTime(.5, a.currentTime+.15);
+    src.connect(bp).connect(g).connect(a.destination); src.start();
+    pourNode = {src, bp, g};
+  } else if (pourNode){
+    const n = pourNode; pourNode = null;
+    if (ac){ n.g.gain.setTargetAtTime(.0001, ac.currentTime, .06); setTimeout(()=>{ try{n.src.stop()}catch(e){} }, 400); }
+  }
+}
+
+/* ================= canvas world ================= */
+const cv = $('#sea'), ctx = cv.getContext('2d');
+let W=0, H=0, DPR=1, safeTop=0, safeBot=0;
+const N = 56;                       // surface springs
+const hs = new Float32Array(N), vs = new Float32Array(N);
+let pts = [];                       // surface points of current frame
+let stars = [], bubbles = [], spray = [], drops = [];
+let moon = {x:0,y:0,r:20,img:null};
+let levelTotal = 0, levelVel = 0, inflight = 0, pourMl = 0;
+let tilt = 0, targetTilt = 0;
+let t0 = performance.now(), simT = 0, acc = 0, last = t0;
+
+function measureSafe(){
+  const p = document.createElement('div');
+  p.style.cssText = 'position:fixed;top:0;left:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);visibility:hidden';
+  document.body.append(p); const cs = getComputedStyle(p);
+  safeTop = parseFloat(cs.paddingTop)||0; safeBot = parseFloat(cs.paddingBottom)||0; p.remove();
+}
+function resize(){
+  measureSafe();
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  stars = Array.from({length:70}, () => ({x:Math.random()*W, y:Math.random()*H*.62, r:Math.random()*1.1+.3, p:Math.random()*6.28, s:.5+Math.random()*1.5}));
+  moon.r = 19; moon.x = W - 40; moon.y = safeTop + 32;
+  moon.img = renderMoon(moon.r);
+}
+
+// Tonight's actual moon phase, drawn once.
+function moonPhase(){
+  const ref = Date.UTC(2000,0,6,18,14), syn = 29.530588853;
+  const days = (Date.now() - ref)/864e5;
+  return ((days % syn) + syn) % syn / syn; // 0 new · .5 full
+}
+function renderMoon(r){
+  const s = Math.ceil(r*2+4), c = document.createElement('canvas'); c.width = c.height = s*DPR;
+  const g = c.getContext('2d'); g.scale(DPR,DPR); const cx = s/2, cy = s/2;
+  const p = moonPhase(), k = Math.cos(2*Math.PI*p), waxing = p < .5;
+  g.fillStyle = 'rgba(246,236,210,.13)'; g.beginPath(); g.arc(cx,cy,r,0,7); g.fill(); // earthshine
+  g.fillStyle = '#f6ecd2';
+  g.beginPath();
+  if (waxing) g.arc(cx,cy,r,-Math.PI/2,Math.PI/2,false); else g.arc(cx,cy,r,Math.PI/2,Math.PI*1.5,false);
+  g.fill();
+  const rx = Math.abs(k)*r;
+  if (k > 0){ // crescent: carve the lit half
+    g.globalCompositeOperation = 'destination-out';
+    g.beginPath(); g.ellipse(cx,cy,rx+.3,r+.5,0,0,7); g.fill();
+    g.globalCompositeOperation = 'source-over';
+    g.fillStyle = 'rgba(246,236,210,.13)'; g.beginPath(); g.ellipse(cx,cy,rx,r,0,0,7); g.fill();
+  } else { // gibbous: add to it
+    g.beginPath(); g.ellipse(cx,cy,rx,r,0,0,7); g.fill();
+  }
+  // a few soft craters
+  g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(180,165,135,.22)';
+  [[-.3,-.25,.22],[.25,.2,.16],[.05,-.45,.1],[-.15,.35,.12]].forEach(([a,b,c2])=>{ g.beginPath(); g.arc(cx+a*r,cy+b*r,c2*r,0,7); g.fill(); });
+  return c;
+}
+function phaseName(){
+  const p = moonPhase();
+  return ['new moon','waxing crescent','first quarter','waxing gibbous','full moon','waning gibbous','last quarter','waning crescent'][Math.round(p*8)%8];
+}
+
+/* --- geometry of the sea --- */
+const topLimit = () => safeTop + 190;
+const baseH = () => H*.08 + safeBot*.3;
+function capacity(){ const ht = S().highTide; return Math.max(ht*1.32, levelTotal*1.1); }
+function yFor(total){ return H - baseH() - clamp(total/capacity(),0,1.2)*(H - baseH() - topLimit()); }
+const ambient = (x,t) => Math.sin(x*.011 + t*1.05)*3.2 + Math.sin(x*.029 - t*1.6)*1.5 + Math.sin(x*.004 + t*.4)*2;
+function surfaceAt(x){
+  if (!pts.length) return H;
+  const f = clamp(x/W,0,1)*(N-1), i = Math.min(N-2, Math.floor(f)), u = f-i;
+  return lerp(pts[i][1], pts[i+1][1], u);
+}
+function splash(x, force, n=10){
+  const i = clamp(Math.round(x/W*(N-1)),0,N-1);
+  vs[i] += force;
+  for (let d=1; d<4; d++){ if (i-d>=0) vs[i-d] += force*(.6/d); if (i+d<N) vs[i+d] += force*(.6/d); }
+  const y = surfaceAt(x);
+  for (let k=0;k<n;k++) spray.push({x, y, vx:(Math.random()-.5)*4.5, vy:-(1.5+Math.random()*Math.min(6,force*.35)), r:1+Math.random()*2.2, life:1});
+  for (let k=0;k<Math.ceil(n/2);k++) bubbles.push({x:x+(Math.random()-.5)*30, y:y+10+Math.random()*50, r:1.5+Math.random()*4, vy:.4+Math.random()*.8, w:Math.random()*6.28});
+}
+
+/* --- fixed-step physics --- */
+function step(){
+  simT += 1/60;
+  // tide level springs toward its target
+  const target = todayCache - inflight + pourMl;
+  levelVel += (target - levelTotal)*.06; levelVel *= .8; levelTotal += levelVel;
+  // tilt
+  const prev = tilt; tilt += (targetTilt - tilt)*.1;
+  const dT = tilt - prev;
+  // springs
+  for (let i=0;i<N;i++){
+    if (dT) vs[i] += dT*(i/(N-1)-.5)*-220;
+    vs[i] += -.022*hs[i] - .028*vs[i];
+    hs[i] += vs[i];
+  }
+  for (let pass=0; pass<3; pass++){
+    for (let i=0;i<N;i++){
+      if (i>0){ const d = .2*(hs[i]-hs[i-1]); vs[i-1] += d; }
+      if (i<N-1){ const d = .2*(hs[i]-hs[i+1]); vs[i+1] += d; }
+    }
+  }
+  // pouring stream
+  if (pour.active){
+    const held = (performance.now() - pour.start)/1000;
+    const rate = 110 + 520*Math.pow(clamp(held/2.6,0,1),1.6); // ml per second
+    pour.rate = rate;
+    if (!pour.cancel) pourMl += rate/60;
+    pour.x += (pour.tx - pour.x)*.18;
+    const i = clamp(Math.round(pour.x/W*(N-1)),0,N-1);
+    vs[i] += .9 + rate/500; if (i>0) vs[i-1] += .4; if (i<N-1) vs[i+1] += .4;
+    if (Math.random() < .5) bubbles.push({x:pour.x+(Math.random()-.5)*14, y:surfaceAt(pour.x)+20+Math.random()*60, r:1+Math.random()*3.5, vy:.6+Math.random(), w:Math.random()*6.28});
+    if (Math.random() < .3) spray.push({x:pour.x, y:surfaceAt(pour.x), vx:(Math.random()-.5)*3, vy:-1-Math.random()*2.5, r:.8+Math.random()*1.6, life:1});
+    if (pourNode && ac){ const fill = clamp(levelTotal/capacity(),0,1); pourNode.bp.frequency.setTargetAtTime(380 + fill*1300, ac.currentTime, .1); }
+  }
+  // falling drops
+  for (let k=drops.length-1;k>=0;k--){
+    const d = drops[k]; d.vy += .55; d.y += d.vy;
+    if (d.y + d.r >= surfaceAt(d.x)){
+      drops.splice(k,1); inflight -= d.ml;
+      splash(d.x, 6 + Math.min(16, d.ml/30), 14);
+      bloop(clamp(levelTotal/capacity(),0,1));
+    }
+  }
+  // ambient bubbles
+  const depth = H - surfaceAt(W/2);
+  if (Math.random() < .04 + depth/H*.08) bubbles.push({x:Math.random()*W, y:H+6, r:1+Math.random()*3, vy:.3+Math.random()*.7, w:Math.random()*6.28});
+  for (let k=bubbles.length-1;k>=0;k--){
+    const b = bubbles[k]; b.y -= b.vy; b.vy = Math.min(b.vy+.008, 2.2); b.w += .07; b.x += Math.sin(b.w)*.35;
+    if (b.y - b.r < surfaceAt(b.x)+2){ bubbles.splice(k,1); if (b.r>3) { const i = clamp(Math.round(b.x/W*(N-1)),0,N-1); vs[i] -= .5; } }
+  }
+  for (let k=spray.length-1;k>=0;k--){
+    const s = spray[k]; s.vy += .22; s.x += s.vx; s.y += s.vy; s.life -= .02;
+    if (s.life <= 0 || (s.vy>0 && s.y > surfaceAt(s.x))) spray.splice(k,1);
+  }
+  if (bubbles.length > 160) bubbles.splice(0, bubbles.length-160);
+}
+
+/* --- palette: calm sea → ink-violet past high tide --- */
+const CALM = [[132,232,216],[42,141,181],[9,38,88]];
+const DEEP = [[170,166,246],[78,66,176],[20,14,66]];
+const mix = (a,b,t) => a.map((v,i)=>Math.round(lerp(v,b[i],t)));
+const rgba = (c,a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+function draw(now){
+  const t = simT;
+  ctx.clearRect(0,0,W,H);
+  // stars
+  for (const s of stars){
+    const a = .25 + .55*(.5+.5*Math.sin(t*s.s + s.p));
+    ctx.fillStyle = `rgba(246,236,210,${a})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
+  }
+  // moon + halo
+  const halo = ctx.createRadialGradient(moon.x,moon.y,moon.r*.6,moon.x,moon.y,moon.r*5);
+  halo.addColorStop(0,'rgba(246,236,210,.20)'); halo.addColorStop(1,'rgba(246,236,210,0)');
+  ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(moon.x,moon.y,moon.r*5,0,7); ctx.fill();
+  const ms = moon.img.width/DPR; ctx.drawImage(moon.img, moon.x-ms/2, moon.y-ms/2, ms, ms);
+
+  // surface points
+  const ly = yFor(levelTotal), slope = Math.tan(tilt);
+  pts = [];
+  for (let i=0;i<N;i++){ const x = i/(N-1)*W; pts.push([x, ly + hs[i] + ambient(x,t) + (x-W/2)*slope]); }
+  const ht = S().highTide;
+  const deep = clamp((levelTotal - ht)/(ht*.2), 0, 1);
+  const top = mix(CALM[0],DEEP[0],deep), mid = mix(CALM[1],DEEP[1],deep), bot = mix(CALM[2],DEEP[2],deep);
+  const minY = Math.min(...pts.map(p=>p[1]));
+
+  // back wave
+  ctx.beginPath(); ctx.moveTo(0,H);
+  for (let i=0;i<N;i++){ const x = pts[i][0]; ctx.lineTo(x, pts[i][1] - 9 + Math.sin(x*.017 - t*1.3)*4); }
+  ctx.lineTo(W,H); ctx.closePath();
+  ctx.fillStyle = rgba(mid,.35); ctx.fill();
+
+  // front water
+  const wp = new Path2D(); wp.moveTo(0,H); wp.lineTo(pts[0][0],pts[0][1]);
+  for (let i=1;i<N-1;i++){ const mx = (pts[i][0]+pts[i+1][0])/2, my = (pts[i][1]+pts[i+1][1])/2; wp.quadraticCurveTo(pts[i][0],pts[i][1],mx,my); }
+  wp.lineTo(pts[N-1][0],pts[N-1][1]); wp.lineTo(W,H); wp.closePath();
+  const g = ctx.createLinearGradient(0,minY,0,H);
+  g.addColorStop(0, rgba(top,.92)); g.addColorStop(.35, rgba(mid,.94)); g.addColorStop(1, rgba(bot,.98));
+  ctx.fillStyle = g; ctx.fill(wp);
+
+  // high tide mark 
+  const hy = yFor(ht);
+  ctx.save();
+  ctx.setLineDash([2,7]); ctx.lineCap = 'round'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(244,236,220,.45)';
+  ctx.beginPath(); ctx.moveTo(18,hy); ctx.lineTo(W-18,hy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = 'italic 13px ui-serif, "New York", Georgia, serif';
+  ctx.fillStyle = 'rgba(244,236,220,.62)'; ctx.textAlign = 'right';
+  ctx.fillText('high tide · ' + vol(ht), W-20, hy-8);
+  ctx.restore();
+
+  ctx.save(); ctx.clip(wp);
+  // god-rays
+  ctx.globalCompositeOperation = 'lighter';
+  for (let r=0;r<4;r++){
+    const cx = ((r*.29 + t*.012*(r%2?1:-1)) % 1 + 1) % 1 * W*1.2 - W*.1;
+    const sy = surfaceAt(clamp(cx,0,W));
+    const rg = ctx.createLinearGradient(0,sy,0,sy+H*.6);
+    const a = .05 + .03*Math.sin(t*.7 + r*2);
+    rg.addColorStop(0,`rgba(220,255,250,${a})`); rg.addColorStop(1,'rgba(220,255,250,0)');
+    ctx.fillStyle = rg; ctx.beginPath();
+    ctx.moveTo(cx-14, sy); ctx.lineTo(cx+20, sy); ctx.lineTo(cx+90, sy+H*.6); ctx.lineTo(cx-30, sy+H*.6); ctx.fill();
+  }
+  // moon path on the water
+  const sy = surfaceAt(moon.x);
+  for (let j=0;j<11;j++){
+    const w = (30 - j*2.3)*(.55 + .45*Math.sin(t*2.2 + j*1.7));
+    ctx.fillStyle = `rgba(250,240,215,${.38*(1-j/11)})`;
+    const yy = sy + 7 + j*7.5, xx = moon.x - 6 + Math.sin(t*1.3 + j)*4;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(xx-w/2, yy, Math.max(2,w), 2.4, 1.2) : ctx.rect(xx-w/2,yy,w,2.4); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  // bubbles
+  ctx.lineWidth = 1;
+  for (const b of bubbles){
+    ctx.strokeStyle = 'rgba(230,255,250,.5)'; ctx.fillStyle = 'rgba(230,255,250,.08)';
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,7); ctx.fill(); ctx.stroke();
+    if (b.r > 2.4){ ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(b.x-b.r*.35,b.y-b.r*.35,b.r*.22,0,7); ctx.fill(); }
+  }
+  ctx.restore();
+
+  // surface highlight
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  for (let i=1;i<N-1;i++){ const mx = (pts[i][0]+pts[i+1][0])/2, my = (pts[i][1]+pts[i+1][1])/2; ctx.quadraticCurveTo(pts[i][0],pts[i][1],mx,my); }
+  ctx.lineTo(pts[N-1][0],pts[N-1][1]);
+  ctx.strokeStyle = 'rgba(235,255,250,.75)'; ctx.lineWidth = 2; ctx.stroke();
+
+  // stream
+  if (pour.active && !pour.cancel){
+    const end = surfaceAt(pour.x), w = 2.5 + pour.rate/70;
+    const sg = ctx.createLinearGradient(0,0,0,end);
+    sg.addColorStop(0,'rgba(220,255,250,.15)'); sg.addColorStop(.4,'rgba(220,255,250,.75)'); sg.addColorStop(1,'rgba(200,250,245,.9)');
+    ctx.strokeStyle = sg; ctx.lineWidth = w; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(pour.x, -10);
+    for (let y=0; y<=end; y+=10) ctx.lineTo(pour.x + Math.sin(y*.045 - t*22)*(.6 + y/end*1.6), y);
+    ctx.lineTo(pour.x, end); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = Math.max(1, w*.25);
+    ctx.beginPath(); ctx.moveTo(pour.x - w*.2, 0); ctx.lineTo(pour.x - w*.2, end-4); ctx.stroke();
+  }
+  // drops
+  for (const d of drops){
+    const x = d.x, y = d.y, r = d.r;
+    ctx.beginPath(); ctx.moveTo(x, y-r*2.5);
+    ctx.quadraticCurveTo(x+r*1.1, y-r*.7, x+r, y); ctx.arc(x,y,r,0,Math.PI);
+    ctx.quadraticCurveTo(x-r*1.1, y-r*.7, x, y-r*2.5);
+    const dg = ctx.createLinearGradient(x-r,y-r*2,x+r,y+r);
+    dg.addColorStop(0,'rgba(240,255,252,.95)'); dg.addColorStop(1,'rgba(110,210,210,.9)');
+    ctx.fillStyle = dg; ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.arc(x-r*.35,y-r*.2,r*.22,0,7); ctx.fill();
+  }
+  // spray
+  for (const s of spray){ ctx.fillStyle = `rgba(230,255,250,${s.life*.85})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill(); }
+}
+
+/* ================= HUD ================= */
+let todayCache = 0, shownKey = '';
+const elTotal = $('#total'), elSub = $('#sub'), elDate = $('#date');
+function refreshToday(){
+  const k = dayKey(Date.now());
+  todayCache = todayTotal();
+  if (k !== shownKey){ shownKey = k; elDate.textContent = dateLong(logicalDate(Date.now())); }
+  $('#hint').classList.toggle('gone', state.entries.length > 0);
+}
+let lastHud = '';
+function hud(){
+  const shown = Math.max(0, levelTotal);
+  const html = num(shown)+'<small>'+unitLabel()+'</small>';
+  if (html !== lastHud){ elTotal.innerHTML = html; lastHud = html; }
+  const n = entriesOn(shownKey).length, ht = S().highTide, real = todayCache + pourMl;
+  let s;
+  if (real > ht) s = vol(real - ht) + ' past high tide';
+  else if (n === 0) s = 'calm water · ' + phaseName();
+  else s = n + (n===1?' drink':' drinks') + ' · last at ' + timeStr(Math.max(...entriesOn(shownKey).map(e=>e.t)));
+  if (elSub.textContent !== s) elSub.textContent = s;
+  elSub.classList.toggle('high', real > ht);
+}
+
+/* ================= loop ================= */
+function frame(now){
+  const dt = Math.min(100, now - last); last = now; acc += dt;
+  let steps = 0;
+  while (acc >= 1000/60 && steps < 5){ step(); acc -= 1000/60; steps++; }
+  if (steps === 5) acc = 0;
+  draw(now); hud();
+  if (pour.active) updatePourBadge();
+  requestAnimationFrame(frame);
+}
+
+/* ================= adding water ================= */
+let lastAdded = null;
+function addEntry(ml, src, t=Date.now()){
+  const e = {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), t, ml: Math.round(ml*10)/10, src};
+  state.entries.push(e); state.entries.sort((a,b)=>a.t-b.t); save();
+  lastAdded = e; refreshToday();
+  return e;
+}
+function removeEntry(id){
+  const i = state.entries.findIndex(e=>e.id===id); if (i<0) return null;
+  const [e] = state.entries.splice(i,1); save(); refreshToday(); return e;
+}
+function dropVessel(v){
+  haptic(); audio();
+  const e = addEntry(v.ml, v.name);
+  inflight += v.ml;
+  drops.push({x: W*.5 + (Math.random()-.5)*W*.35, y: safeTop + 120, vy: 1, ml: v.ml, r: 7 + Math.min(9, v.ml/70)});
+  toast('+' + amt(v.ml) + ' ' + v.name, () => { removeEntry(e.id); });
+}
+
+/* --- hold to pour --- */
+const pour = {active:false, id:null, start:0, x:0, tx:0, rate:0, cancel:false, timer:0, downX:0, downY:0};
+const elPour = $('#pour');
+function updatePourBadge(){
+  elPour.querySelector('b').textContent = amt(roundPour(Math.max(pourMl,1)));
+  elPour.querySelector('span').textContent = pour.cancel ? 'release to cancel' : 'pouring · let go to log';
+  elPour.classList.toggle('cancel', pour.cancel);
+}
+cv.addEventListener('pointerdown', e => {
+  if (pour.id !== null) return;
+  audio(); maybeTilt();
+  // the moon opens the tide chart
+  if (Math.hypot(e.clientX-moon.x, e.clientY-moon.y) < moon.r + 22){ openSheet('tideSheet'); return; }
+  pour.id = e.pointerId; pour.downX = e.clientX; pour.downY = e.clientY;
+  pour.tx = pour.x = e.clientX;
+  cv.setPointerCapture(e.pointerId);
+  pour.timer = setTimeout(() => {
+    pour.active = true; pour.start = performance.now(); pour.cancel = false; pourMl = 0;
+    elPour.classList.add('on'); $('#hint').classList.add('gone');
+    pourSound(true); haptic();
+  }, 170);
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerId !== pour.id) return;
+  pour.tx = e.clientX;
+  if (pour.active){
+    const c = e.clientY < safeTop + 110;
+    if (c !== pour.cancel){ pour.cancel = c; haptic(); }
+  }
+});
+function endPour(e){
+  if (e.pointerId !== pour.id) return;
+  clearTimeout(pour.timer); pour.id = null;
+  if (!pour.active){ // a tap: just play with the water
+    splash(e.clientX, 7, 6); bloop(clamp(levelTotal/capacity(),0,1), .1);
+    if (!state.entries.length) { const h = $('#hint'); h.textContent = 'hold a little longer…'; setTimeout(()=>h.textContent='hold anywhere to pour', 1800); }
+    return;
+  }
+  pour.active = false; elPour.classList.remove('on'); pourSound(false);
+  const ml = pourMl;
+  if (!pour.cancel && ml > 2){
+    const r = roundPour(ml);
+    pourMl = 0;                // hand the pour over to a real entry seamlessly
+    const en = addEntry(r, 'poured');
+    haptic(); bloop(clamp(levelTotal/capacity(),0,1));
+    toast('+' + amt(r) + ' poured', () => removeEntry(en.id));
+  } else { pourMl = 0; refreshToday(); $('#hint').classList.toggle('gone', state.entries.length>0); }
+}
+cv.addEventListener('pointerup', endPour);
+cv.addEventListener('pointercancel', endPour);
+
+/* --- tilt --- */
+let tiltOn = false;
+function onOrient(e){
+  if (e.beta == null) return;
+  const b = e.beta*Math.PI/180, g = e.gamma*Math.PI/180;
+  const ux = -Math.cos(b)*Math.sin(g), uy = Math.sin(b);
+  const m = Math.hypot(ux,uy);
+  let phi = Math.atan2(ux, uy);
+  if (m < .35) phi *= m/.35;
+  targetTilt = clamp(phi, -.5, .5);
+}
+async function enableTilt(){
+  if (tiltOn) return true;
+  if (typeof DeviceOrientationEvent === 'undefined') return false;
+  if (typeof DeviceOrientationEvent.requestPermission === 'function'){
+    try{ if (await DeviceOrientationEvent.requestPermission() !== 'granted') return false; }catch(err){ return false; }
+  }
+  addEventListener('deviceorientation', onOrient); tiltOn = true; return true;
+}
+function disableTilt(){ removeEventListener('deviceorientation', onOrient); tiltOn = false; targetTilt = 0; }
+function maybeTilt(){ if (S().tilt && !tiltOn) enableTilt(); }
+
+/* ================= toast ================= */
+const elToast = $('#toast'); let toastTimer = 0, undoFn = null;
+function toast(msg, undo){
+  elToast.querySelector('span').textContent = msg;
+  undoFn = undo; elToast.querySelector('button').style.display = undo ? '' : 'none';
+  elToast.classList.add('on'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>elToast.classList.remove('on'), 4200);
+}
+elToast.querySelector('button').addEventListener('click', () => {
+  if (undoFn){ undoFn(); undoFn = null; haptic(); }
+  elToast.classList.remove('on'); if (openId === 'logSheet') renderLog();
+});
+
+/* ================= pebbles ================= */
+function renderPebbles(){
+  const box = $('#pebbles'); box.innerHTML = '';
+  S().vessels.filter(v=>v.ml>0 && v.name).slice(0,4).forEach(v => {
+    const b = document.createElement('button'); b.className = 'pebble';
+    b.innerHTML = `<b>${num(v.ml)}</b><i>${esc(v.name)}</i>`;
+    b.addEventListener('click', () => dropVessel(v));
+    box.append(b);
+  });
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ================= sheets ================= */
+let openId = null;
+function openSheet(id){
+  closeSheet(true); openId = id; haptic();
+  if (id === 'logSheet'){ logOffset = 0; renderLog(); }
+  if (id === 'tideSheet') renderTides();
+  if (id === 'setSheet') renderSettings();
+  $('#'+id).classList.add('on'); $('#veil').classList.add('on');
+}
+function closeSheet(quiet){
+  document.querySelectorAll('.sheet.on').forEach(s=>{ s.classList.remove('on'); s.style.transform=''; });
+  $('#veil').classList.remove('on'); openId = null;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+}
+$('#veil').addEventListener('click', ()=>closeSheet());
+$('#openLog').addEventListener('click', ()=>openSheet('logSheet'));
+$('#openTides').addEventListener('click', ()=>openSheet('tideSheet'));
+$('#gear').addEventListener('click', ()=>openSheet('setSheet'));
+// swipe a sheet down by its header to close
+document.querySelectorAll('.sheet header').forEach(h => {
+  let y0 = null, sheet = h.parentElement;
+  h.addEventListener('pointerdown', e => { y0 = e.clientY; sheet.style.transition = 'none'; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointermove', e => { if (y0===null) return; const dy = Math.max(0, e.clientY-y0); sheet.style.transform = `translateY(${dy}px)`; });
+  const up = e => { if (y0===null) return; const dy = e.clientY-y0; y0 = null; sheet.style.transition = ''; sheet.style.transform = '';
+    if (dy > 70) closeSheet(); };
+  h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+});
+
+/* --- log --- */
+let logOffset = 0;
+function renderLog(){
+  const d = dayDate(logOffset), k = keyOf(d), es = entriesOn(k).slice().reverse();
+  $('#logTotal').textContent = amt(sum(es));
+  $('#logDay').textContent = logOffset===0 ? 'today' : logOffset===1 ? 'yesterday' : d.toLocaleDateString([], {weekday:'long', day:'numeric', month:'short'});
+  $('#nextDay').disabled = logOffset === 0;
+  const first = state.entries.length ? dayKey(state.entries[0].t) : k;
+  $('#prevDay').disabled = k <= first;
+  const max = Math.max(1, ...es.map(e=>e.ml));
+  const box = $('#entries');
+  if (!es.length){ box.innerHTML = `<div class="empty">${logOffset===0 ? 'nothing yet — the sea is calm' : 'no water logged this day'}</div>`; }
+  else box.innerHTML = es.map(e => `
+    <div class="entry"><span class="t">${timeStr(e.t)}</span>
+      <span class="a">${amt(e.ml)}</span>
+      <span class="s">${esc(e.src||'')}<div class="drop-bar" style="width:${Math.round(e.ml/max*100)}%;margin-top:6px"></div></span>
+      <button class="d" data-id="${e.id}" aria-label="Remove">×</button></div>`).join('');
+  box.querySelectorAll('.d').forEach(b => b.addEventListener('click', () => {
+    const e = removeEntry(b.dataset.id); haptic(); renderLog();
+    if (e) toast('removed ' + amt(e.ml), () => { state.entries.push(e); state.entries.sort((a,b)=>a.t-b.t); save(); refreshToday(); renderLog(); });
+  }));
+  $('#addAmt').placeholder = 'amount (' + unitLabel() + ')';
+  const now = new Date(); $('#addTime').value = pad(now.getHours())+':'+pad(now.getMinutes());
+}
+$('#prevDay').addEventListener('click', ()=>{ logOffset++; renderLog(); });
+$('#nextDay').addEventListener('click', ()=>{ logOffset = Math.max(0, logOffset-1); renderLog(); });
+$('#addBtn').addEventListener('click', () => {
+  const v = parseFloat($('#addAmt').value); if (!(v>0)) { $('#addAmt').focus(); return; }
+  const [hh,mm] = ($('#addTime').value || '12:00').split(':').map(Number);
+  const d = dayDate(logOffset);
+  let ts = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm).getTime();
+  if (hh < S().dayStart) ts += 864e5; // after midnight, still belongs to this "day"
+  addEntry(toMl(v), 'added later', ts);
+  $('#addAmt').value = ''; haptic(); renderLog();
+});
+
+/* --- tides (charts) --- */
+let range = 7;
+$('#range').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  range = +b.dataset.n; document.querySelectorAll('#range button').forEach(x=>x.classList.toggle('on', x===b)); renderTides();
+});
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){ const n = document.createElementNS(SVGNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.append(n); return n; }
+function barPath(x,y,w,h,r){ // rounded top, square base
+  if (h <= 0) return '';
+  r = Math.min(r, w/2, h);
+  return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`;
+}
+function renderTides(){
+  const ht = S().highTide;
+  const firstKey = state.entries.length ? dayKey(state.entries[0].t) : keyOf(dayDate(0));
+  const days = [];
+  for (let i=range-1;i>=0;i--){ const d = dayDate(i), k = keyOf(d); const es = entriesOn(k); days.push({d, k, total:sum(es), n:es.length, today:i===0, counted: k >= firstKey}); }
+
+  // --- daily bars ---
+  const wrap = $('#dayChart'); wrap.innerHTML = '';
+  const Wc = wrap.clientWidth || (innerWidth-44), Hc = 190, padL = 0, padB = 24, padT = 10;
+  const maxV = Math.max(ht*1.15, ...days.map(d=>d.total))*1.05;
+  const svg = el('svg', {viewBox:`0 0 ${Wc} ${Hc}`, height:Hc, role:'img', 'aria-label':'Daily water for the last '+range+' days'}, wrap);
+  const y = v => padT + (Hc-padT-padB)*(1 - v/maxV);
+  el('line', {x1:0, x2:Wc, y1:y(0), y2:y(0), stroke:'rgba(244,236,220,.18)', 'stroke-width':1}, svg);
+  const gap = range > 14 ? 3 : 6, bw = (Wc - padL - gap*(range-1))/range;
+  days.forEach((d,i) => {
+    const x = padL + i*(bw+gap), top = y(d.total);
+    el('path', {d: barPath(x, top, bw, y(0)-top, Math.min(4,bw/2)), fill: d.today ? '#9ff0e2' : 'rgba(127,227,212,.55)'}, svg);
+    const show = range===7 || (range===14 && i%2===(range-1)%2) || (range===30 && (range-1-i)%5===0);
+    if (show){
+      const t = el('text', {x:x+bw/2, y:Hc-6, 'text-anchor':'middle', 'font-size':11, fill: d.today ? 'rgba(244,236,220,.9)' : 'rgba(244,236,220,.45)'}, svg);
+      t.textContent = range===7 ? d.d.toLocaleDateString([], {weekday:'narrow'}) : d.d.getDate();
+    }
+    const hit = el('rect', {x:x-gap/2, y:0, width:bw+gap, height:Hc, fill:'transparent'}, svg);
+    hit.addEventListener('pointerdown', ev => { ev.stopPropagation(); showTip(wrap, x+bw/2, Math.min(top, y(ht))-8,
+      `${d.d.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'})}<br><b>${amt(d.total)}</b> · ${d.n} drink${d.n===1?'':'s'}`); });
+  });
+  const hy = y(ht);
+  el('line', {x1:0, x2:Wc, y1:hy, y2:hy, stroke:'rgba(244,236,220,.55)', 'stroke-width':1.5, 'stroke-dasharray':'2 6', 'stroke-linecap':'round'}, svg);
+  const lt = el('text', {x:Wc, y:hy-6, 'text-anchor':'end', 'font-size':12, 'font-style':'italic', 'font-family':'ui-serif, Georgia, serif', fill:'rgba(244,236,220,.8)', stroke:'rgba(14,20,48,.9)', 'stroke-width':4, 'paint-order':'stroke'}, svg);
+  lt.textContent = 'high tide · ' + vol(ht);
+
+  // --- stats ---
+  const counted = days.filter(d=>d.counted);
+  const avg = counted.length ? sum(counted.map(d=>({ml:d.total})))/counted.length : 0;
+  const best = days.reduce((a,d)=>d.total>a.total?d:a, days[0]);
+  const over = counted.filter(d=>d.total>ht).length;
+  const sizes = counted.flatMap(d=>entriesOn(d.k).map(e=>e.ml)).sort((a,b)=>a-b);
+  const median = sizes.length ? sizes[Math.floor(sizes.length/2)] : 0;
+  const perDay = counted.length ? sizes.length/counted.length : 0;
+  $('#tiles').innerHTML = `
+    <div class="tile"><b>${vol(avg)}</b><span>average a day</span></div>
+    <div class="tile"><b>${best.total ? vol(best.total) : '—'}</b><span>${best.total ? 'highest · '+best.d.toLocaleDateString([], {weekday:'short', day:'numeric'}) : 'highest day'}</span></div>
+    <div class="tile"><b>${over}<span style="font-size:15px;color:var(--ink-3)"> / ${counted.length||0}</span></b><span>days past high tide</span></div>
+    <div class="tile"><b>${median ? amt(median) : '—'}</b><span>typical drink · ${perDay ? (Math.round(perDay*10)/10) : 0} a day</span></div>`;
+
+  // --- hour rhythm ---
+  const hw = $('#hourChart'); hw.innerHTML = '';
+  const hours = new Array(24).fill(0);
+  counted.forEach(d => entriesOn(d.k).forEach(e => { hours[new Date(e.t).getHours()] += e.ml; }));
+  const hAvg = hours.map(v => counted.length ? v/counted.length : 0);
+  const Hh = 90, hb = 16, hmax = Math.max(1, ...hAvg);
+  const hsvg = el('svg', {viewBox:`0 0 ${Wc} ${Hh}`, height:Hh, role:'img', 'aria-label':'Average water by hour of day'}, hw);
+  const hg = 2, hbw = (Wc - hg*23)/24;
+  hAvg.forEach((v,i) => {
+    const x = i*(hbw+hg), h = (Hh-hb-4)*v/hmax, top = Hh-hb-h;
+    el('rect', {x, y:Hh-hb-1, width:hbw, height:1, fill:'rgba(244,236,220,.12)'}, hsvg);
+    if (h > 0) el('path', {d: barPath(x, top, hbw, h, Math.min(3,hbw/2)), fill:'rgba(127,227,212,.55)'}, hsvg);
+    if (i%6===0){ const t = el('text', {x:x, y:Hh-2, 'font-size':10.5, fill:'rgba(244,236,220,.45)'}, hsvg); t.textContent = i===0?'12a':i===12?'12p':(i%12)+(i<12?'a':'p'); }
+    const hit = el('rect', {x:x-hg/2, y:0, width:hbw+hg, height:Hh, fill:'transparent'}, hsvg);
+    hit.addEventListener('pointerdown', ev => { ev.stopPropagation(); const hr = i%12===0?12:i%12;
+      showTip(hw, x+hbw/2, top-6, `${hr}${i<12?'am':'pm'}–${(i+1)%12===0?12:(i+1)%12}${(i+1)%24<12?'am':'pm'}<br><b>${amt(v)}</b> on average`); });
+  });
+  const peak = hAvg.indexOf(Math.max(...hAvg));
+  $('#hourNote').textContent = sizes.length ? `Your busiest hour is around ${peak%12===0?12:peak%12}${peak<12?'am':'pm'}. Tap any bar for detail.` : 'Once you log a few drinks, your daily rhythm shows up here.';
+}
+function showTip(wrap, x, y, html){
+  let tip = wrap.querySelector('.tip'); if (!tip){ tip = document.createElement('div'); tip.className = 'tip'; wrap.append(tip); }
+  tip.innerHTML = html; tip.classList.add('on');
+  const w = wrap.clientWidth; tip.style.left = clamp(x, 70, w-70)+'px'; tip.style.top = Math.max(30,y)+'px';
+  clearTimeout(tip._t); tip._t = setTimeout(()=>tip.classList.remove('on'), 2600);
+}
+
+/* --- settings --- */
+function renderSettings(){
+  $('#htVal').textContent = vol(S().highTide);
+  document.querySelectorAll('#units button').forEach(b=>b.classList.toggle('on', b.dataset.u===S().unit));
+  $('#dayStart').value = S().dayStart;
+  $('#sound').checked = S().sound; $('#tilt').checked = S().tilt;
+  const vb = $('#vessels'); vb.innerHTML = '';
+  S().vessels.forEach((v,i) => {
+    const r = document.createElement('div'); r.className = 'vessel';
+    r.innerHTML = `<input type="text" maxlength="10" value="${esc(v.name)}" aria-label="Vessel name"><input type="number" inputmode="decimal" value="${fromMl(v.ml)}" aria-label="Amount in ${unitLabel()}">`;
+    const [n, a] = r.querySelectorAll('input');
+    n.addEventListener('change', () => { v.name = n.value.trim().slice(0,10); save(); renderPebbles(); });
+    a.addEventListener('change', () => { const x = parseFloat(a.value); v.ml = x>0 ? Math.round(toMl(x)) : 0; save(); renderPebbles(); });
+    vb.append(r);
+  });
+  const note = document.createElement('p'); note.className = 'note'; note.textContent = `Amounts in ${unitLabel()}. Clear a name to hide that pebble.`; vb.append(note);
+}
+function setHT(d){ S().highTide = clamp(S().highTide + d, 500, 8000); save(); renderSettings(); haptic(); }
+$('#htDown').addEventListener('click', ()=>setHT(isOz() ? -8*OZ : -250));
+$('#htUp').addEventListener('click', ()=>setHT(isOz() ? 8*OZ : 250));
+$('#units').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S().unit = b.dataset.u; save(); renderSettings(); renderPebbles(); lastHud=''; });
+$('#dayStart').addEventListener('change', e => { S().dayStart = +e.target.value; save(); shownKey=''; refreshToday(); });
+$('#sound').addEventListener('change', e => { S().sound = e.target.checked; save(); if (S().sound) bloop(.5); });
+$('#tilt').addEventListener('change', async e => {
+  if (e.target.checked){ const ok = await enableTilt(); S().tilt = ok; e.target.checked = ok; if (!ok) toast('motion access wasn’t allowed'); }
+  else { S().tilt = false; disableTilt(); }
+  save();
+});
+$('#exportBtn').addEventListener('click', async () => {
+  const data = JSON.stringify({app:'tide', version:1, exported:new Date().toISOString(), ...state}, null, 1);
+  const name = 'tide-backup-' + keyOf(new Date()) + '.json';
+  const file = new File([data], name, {type:'application/json'});
+  if (navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:'Tide backup'}); return; }catch(err){ if (err.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+});
+$('#importBtn').addEventListener('click', ()=>$('#importFile').click());
+$('#importFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try{
+    const s = JSON.parse(await f.text());
+    if (!Array.isArray(s.entries)) throw 0;
+    const ids = new Set(state.entries.map(x=>x.id));
+    const incoming = s.entries.filter(x => x && x.id && !ids.has(x.id) && x.ml > 0 && x.t > 0);
+    state.entries = state.entries.concat(incoming).sort((a,b)=>a.t-b.t);
+    if (s.settings) state.settings = {...DEFAULTS, ...s.settings};
+    save(); refreshToday(); renderPebbles(); renderSettings();
+    toast('restored ' + incoming.length + ' drinks');
+  }catch(err){ toast('that file didn’t look like a Tide backup'); }
+  e.target.value = '';
+});
+$('#wipeBtn').addEventListener('click', () => {
+  if (!confirm('Drain everything? This erases every drink on this phone.')) return;
+  state.entries = []; save(); refreshToday(); closeSheet(); toast('the sea is empty');
+});
+
+/* ================= day rollover & boot ================= */
+function tick(){ const k = dayKey(Date.now()); if (k !== shownKey) refreshToday(); }
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ tick(); last = performance.now(); } else if (pour.active){ pour.active=false; pourSound(false); pourMl=0; elPour.classList.remove('on'); pour.id=null; } });
+setInterval(tick, 30000);
+addEventListener('resize', resize);
+document.addEventListener('gesturestart', e => e.preventDefault());
+
+resize(); refreshToday(); renderPebbles();
+levelTotal = 0; // open on an empty sea and let the day's water rise in
+requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
