@@ -272,7 +272,7 @@ input[switch]{accent-color:#3fb8a8;transform:scale(1.15)}
   <div class="body">
     <div class="row"><div><label>High-tide mark</label><small>A line on the water, so you can see when a day runs high. Not a goal.</small></div>
       <div class="stepper"><button id="htDown">−</button><output id="htVal"></output><button id="htUp">+</button></div></div>
-    <div class="row"><div><label>Sky</label><small id="skyNote">Auto follows your phone’s light / dark setting.</small></div><div class="seg" id="sky"><button data-s="auto">auto</button><button data-s="day">day</button><button data-s="night">night</button></div></div>
+    <div class="row"><div><label>Sky</label><small id="skyNote">Auto: day from 4am, night from 8pm.</small></div><div class="seg" id="sky"><button data-s="auto">auto</button><button data-s="day">day</button><button data-s="night">night</button></div></div>
     <div class="row"><label>Units</label><div class="seg" id="units"><button data-u="ml">ml</button><button data-u="oz">fl oz</button></div></div>
     <div class="row"><div><label>New day begins</label><small>For late nights.</small></div>
       <select id="dayStart"><option value="0">midnight</option><option value="1">1 am</option><option value="2">2 am</option><option value="3">3 am</option><option value="4">4 am</option><option value="5">5 am</option></select></div>
@@ -297,10 +297,11 @@ input[switch]{accent-color:#3fb8a8;transform:scale(1.15)}
 const STORE = 'tide.v1';
 const OZ = 29.5735;
 const DEFAULTS = {
-  highTide: 2500, unit: 'ml', dayStart: 0, sound: true, tilt: false, sky: 'night',
+  highTide: 2500, unit: 'ml', dayStart: 0, sound: true, tilt: false, sky: 'auto',
   vessels: [{name:'sip',ml:100},{name:'glass',ml:250},{name:'mug',ml:350},{name:'bottle',ml:500}]
 };
 let state = load();
+if (!state.settings.skyAuto){ state.settings.sky = 'auto'; state.settings.skyAuto = true; save(); }
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem(STORE));
@@ -396,17 +397,20 @@ function pourSound(on){
 }
 
 /* ================= sky: day / night ================= */
-const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+// Auto sky: day from 4am until 8pm, night otherwise.
+const DAY_FROM = 4, NIGHT_FROM = 20;
+const clockIsDay = () => { const h = new Date().getHours(); return h >= DAY_FROM && h < NIGHT_FROM; };
 let isDay = false;
 function applySky(){
   const m = S().sky;
-  const day = m === 'day' || (m === 'auto' && !darkMQ.matches);
+  const day = m === 'day' || (m === 'auto' && clockIsDay());
+  if (applySky.done && day === isDay) return;
+  applySky.done = true;
   isDay = day;
   document.body.classList.toggle('day', day);
   document.querySelector('meta[name=theme-color]').setAttribute('content', day ? '#3f86c9' : '#0a0f26');
   lastHud = '';
 }
-darkMQ.addEventListener && darkMQ.addEventListener('change', applySky);
 
 /* ================= canvas world ================= */
 const cv = $('#sea'), ctx = cv.getContext('2d');
@@ -1156,7 +1160,7 @@ $('#wipeBtn').addEventListener('click', () => {
 });
 
 /* ================= day rollover & boot ================= */
-function tick(){ const k = dayKey(Date.now()); if (k !== shownKey) refreshToday(); }
+function tick(){ applySky(); const k = dayKey(Date.now()); if (k !== shownKey) refreshToday(); }
 document.addEventListener('visibilitychange', () => { if (!document.hidden){ tick(); last = performance.now(); } else if (pour.active){ pour.active=false; pourSound(false); pourMl=0; elPour.classList.remove('on'); pour.id=null; } });
 setInterval(tick, 30000);
 addEventListener('resize', resize);

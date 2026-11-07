@@ -7,7 +7,7 @@ A tiny water tracker for iPhone. Your day is a moonlit sea that rises as you dri
 - **High-tide mark**: a dotted line on the water. Past it, the sea turns ink-violet. It shows you when a day runs high. It isn't a goal.
 - **Got it wrong?** Tap *edit* on the toast after a pour, or tap any drink in the log, to nudge the amount or time.
 - **thirsty** button: logs a thirsty moment (a shooting star crosses the sky). Tides shows thirst next to drinking, so you can see whether you're drinking ahead of thirst.
-- **Day mode**: Settings → Sky: auto (follows your phone), day, or night.
+- **Day mode**: Settings → Sky: auto (day from 4am, night from 8pm), day, or night.
 - **Tides** (or tap the moon) shows daily totals, averages, and the hours you drink most.
 - The moon is tonight's real moon phase.
 - Optional: water sounds that rise in pitch as the sea fills, and tilt (the water stays level when you tip the phone).
