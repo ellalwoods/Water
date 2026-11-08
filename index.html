@@ -438,6 +438,7 @@ let stars = [], clouds = [], bubbles = [], spray = [], drops = [], wishes = [];
 let moon = {x:0,y:0,r:20,img:null};
 let levelTotal = 0, levelVel = 0, inflight = 0, pourMl = 0;
 let tilt = 0, targetTilt = 0;
+let lastUnder = '';
 let ebbT = -1; // seconds since an ebb was logged
 let t0 = performance.now(), simT = 0, acc = 0, last = t0;
 
@@ -647,6 +648,7 @@ function draw(now){
   const g = ctx.createLinearGradient(0,minY,0,H);
   g.addColorStop(0, rgba(top,.92)); g.addColorStop(.35, rgba(mid,.94)); g.addColorStop(1, rgba(bot,.98));
   ctx.fillStyle = g; ctx.fill(wp);
+  const under = rgba(bot,1); if (under !== lastUnder){ lastUnder = under; document.documentElement.style.backgroundColor = under; }
 
   // high tide mark 
   const hy = yFor(ht);
@@ -1232,7 +1234,20 @@ applySky(); resize(); refreshToday(); renderPebbles();
 levelTotal = 0; // open on an empty sea and let the day's water rise in
 requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
 
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    reg.update().catch(()=>{});
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(()=>{}); });
+  }).catch(()=>{});
+  // a new version took over: reload once (only if nothing is mid-pour or being edited)
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloaded) return;
+    const go = () => { if (pour.active || edId || openId){ setTimeout(go, 3000); return; } reloaded = true; location.reload(); };
+    go();
+  });
+}
 })();
 </script>
 </body>
