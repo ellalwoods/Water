@@ -527,11 +527,11 @@ function step(){
     if (ebbT > 2.2) ebbT = -1;
   }
   // tilt
-  const prev = tilt; tilt += (targetTilt - tilt)*.1;
+  const prev = tilt; tilt += (targetTilt - tilt)*.05;
   const dT = tilt - prev;
   // springs
   for (let i=0;i<N;i++){
-    if (dT) vs[i] += dT*(i/(N-1)-.5)*-220;
+    if (dT) vs[i] += dT*(i/(N-1)-.5)*-260;
     vs[i] += -.022*hs[i] - .028*vs[i];
     hs[i] += vs[i];
   }
@@ -841,7 +841,7 @@ function onOrient(e){
   const m = Math.hypot(ux,uy);
   let phi = Math.atan2(ux, uy);
   if (m < .35) phi *= m/.35;
-  targetTilt = clamp(phi, -.5, .5);
+  targetTilt = clamp(phi*.25, -.09, .09);
 }
 async function enableTilt(){
   if (tiltOn) return true;
