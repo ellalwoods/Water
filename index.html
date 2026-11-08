@@ -1167,6 +1167,9 @@ function renderSettings(){
   document.querySelectorAll('#units button').forEach(b=>b.classList.toggle('on', b.dataset.u===S().unit));
   $('#dayStart').value = S().dayStart;
   document.querySelectorAll('#sky button').forEach(b=>b.classList.toggle('on', b.dataset.s===S().sky));
+  const sk = S().sky, hNow = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}).toLowerCase();
+  $('#skyNote').textContent = sk === 'auto' ? `Day from 4am, night from 8pm. It’s ${hNow} on your phone, so it’s ${isDay ? 'day' : 'night'}.`
+    : `Always ${sk}. Choose auto to follow the clock.`;
   $('#sound').checked = S().sound; $('#tilt').checked = S().tilt;
   const vb = $('#vessels'); vb.innerHTML = '';
   S().vessels.forEach((v,i) => {
@@ -1224,6 +1227,8 @@ $('#wipeBtn').addEventListener('click', () => {
 });
 
 /* ================= day rollover & boot ================= */
+addEventListener('pageshow', () => tick());
+addEventListener('focus', () => tick());
 function tick(){ applySky(); const k = dayKey(Date.now()); if (k !== shownKey) refreshToday(); }
 document.addEventListener('visibilitychange', () => { if (!document.hidden){ tick(); last = performance.now(); } else if (pour.active){ pour.active=false; pourSound(false); pourMl=0; elPour.classList.remove('on'); pour.id=null; } });
 setInterval(tick, 30000);
